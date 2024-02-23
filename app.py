@@ -1,11 +1,15 @@
 import streamlit as st
+import pandas as pd
 from PIL import Image
 import source as sc
+import numpy as np
 
 # Título centrado en la página
 st.markdown("<h1 style='text-align: center;'>Bienvenidos a la aplicación para clasificar café</h1>", unsafe_allow_html=True)
 
-
+# Crear o cargar el DataFrame para almacenar los resultados de las pruebas
+if 'results_list' not in st.session_state:
+    st.session_state.results_list = []
 
 
 # Cargar imagen y mostrarla en un solo clic
@@ -44,13 +48,21 @@ if uploaded_file is not None:
     col2.image(img_malo.reshape(img_normal.shape), use_column_width=True, output_format='auto')
     col2.markdown("<p style='text-align: center; font-size: 18px; color: white; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
 
+    # Obtener el número de prueba
+    num_prueba = len(st.session_state.results_list) + 1
 
-   # Mostrar porcentajes
-    st.text(f"Porcentaje de Café Bueno: {porcentaje_bueno}%")
-    st.text(f"Porcentaje de Café Malo: {porcentaje_malo}%")
+    # Obtener la fecha y hora actual
+    fecha_hora_actual = pd.to_datetime('now').strftime('%Y-%m-%d %H:%M:%S')
 
-    
+    st.session_state.results_list.append({
+        "#prueba": num_prueba,
+        "Fecha y Hora": fecha_hora_actual,
+        "%cafe bueno": porcentaje_bueno,
+        "%cafe malo": porcentaje_malo
+    })
 
+    # Mostrar la tabla actualizada con st.table
+    st.table(pd.DataFrame(st.session_state.results_list))      
 
 
 
