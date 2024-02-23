@@ -1,0 +1,8 @@
+como ejecutar el proyecto 
+
+1. Activar el ambiente con el siguiente comando: .\.venv\Scripts\activate
+
+
+
+
+ejecutar server: python -m streamlit run app.py
