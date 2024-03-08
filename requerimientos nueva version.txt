@@ -1,0 +1,5 @@
+opcion de utilizar camara o carga imagen 
+mostrar tres imagenes 
+real, cafe bueno y cafe malo 
+tabla 
+exportar en pdf 

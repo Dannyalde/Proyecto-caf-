@@ -57,8 +57,8 @@ if uploaded_file is not None:
     st.session_state.results_list.append({
         "#prueba": num_prueba,
         "Fecha y Hora": fecha_hora_actual,
-        "%cafe bueno": porcentaje_bueno,
-        "%cafe malo": porcentaje_malo
+        "%cafe bueno":round((porcentaje_bueno/porcentaje_suma)*100,2),
+        "%cafe malo": round((porcentaje_malo/porcentaje_suma)*100,2)
     })
 
     # Mostrar la tabla actualizada con st.table
