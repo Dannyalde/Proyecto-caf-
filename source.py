@@ -5,6 +5,14 @@ import cv2 as cv
 import spectral.io.envi as envi
 from spectral import * 
 from rembg import remove
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+import os
+
+
+fold = lambda unfold_image,size: unfold_image.reshape(size)
+read = lambda path: cv.imread(path)[...,::-1]
 
 
 def read_img(path:str):
@@ -14,56 +22,83 @@ def read_img(path:str):
 
     return image_rgb
 
-def unfold(image_rgb:np.array):
+def __unfold__(image_rgb:np.array):
 
     size = tuple(image_rgb.shape)
     image_unfold = image_rgb.reshape(-1,3)
 
-    return image_unfold, size
+    return image_unfold,size
 
-def Normal(img:np.ndarray,white_limit:int):
+def __fold__(unfold_image:np.array,size:tuple):
 
+    img_fold = unfold_image.reshape(size)
+    return img_fold
 
+def Normal(img: np.ndarray, white_limit: int):
     image_fg = remove(img)
-    data, features = unfold(img)
-    
-    std = data.std(1)
-    hist, bin_edges = np.histogram(std,bins = 50)
-    bin_centers = (bin_edges[:-1] + bin_edges[1:])/2
-    sorted_idx = np.argsort(hist)
-    max_idx = sorted_idx[-1]
-    
-    mean_hist = bin_centers[max_idx]
+    data, features = __unfold__(img)
+
+    std = data.std(axis=1)
+    mean_std = np.mean(std)
     sigma = np.std(std)
+    
+    stdlim = mean_std + 3 * np.std(std <=  (0.5*sigma))
+    mask_background = std <= stdlim
 
-    sigma_idx = np.where(std <= mean_hist + (0.5*sigma))
-    sigma_filt = np.std(std[sigma_idx])
-    stdlim = mean_hist + 3*sigma_filt
+    background_reference = data[mask_background]
+    background_reference_mean = background_reference.mean(axis=1)
+    mask_white = background_reference_mean >= white_limit
 
-    idx_background = np.where(std <= stdlim)[0]
-    background_reference = data[idx_background]
-    background_reference_mean = background_reference.mean(1)
-    white_idx = np.where(background_reference_mean >= white_limit)[0]
-    white_reference =  background_reference[white_idx]
-    mean = white_reference.mean(0)
-
-    construction_data = np.zeros_like(data)
+    construction_data = np.zeros_like(data,dtype=np.float64)
     ref_white = np.copy(data)
 
-    idx_ = np.where(image_fg[:,:,3].reshape(-1) > 200)
-    construction_data[idx_] = data[idx_]
+    idx_foreground = image_fg[:, :, 3].reshape(-1) > 200
+    construction_data[idx_foreground] = data[idx_foreground]
 
-    construction_data = construction_data/mean
-    np.place(construction_data, construction_data > 1,1)
+    mean = background_reference[mask_white].mean(axis=0)
+    
+    construction_data /= mean
+    construction_data[construction_data > 1] = 1
 
-    ref_white[idx_background[white_idx]] = np.array([0,0,0])
-    construction_data = np.reshape(construction_data,features)
-    ref_white = np.reshape(ref_white,features)
-    sample = idx_[0].shape[0]
-    return construction_data, ref_white, mean, sample
+    mask_background[mask_background==True] = mask_white
+    ref_white[mask_background] = 0
+    construction_data = construction_data.reshape(features)
+    ref_white = ref_white.reshape(features)
 
-def RGB2Lab(img_data:np.ndarray):
+    sample = np.count_nonzero(idx_foreground)
 
+    return construction_data, ref_white, mean, idx_foreground
+
+
+def RGB2Labv2(img_rgb: np.ndarray):
+
+    img_data,size = __unfold__(img_rgb)
+    gamma_correction = img_data ** 2.2
+
+    xyz_linear = np.dot(gamma_correction, np.array([[0.4124, 0.3576, 0.1805],
+                                                     [0.2126, 0.7152, 0.0722],
+                                                     [0.0193, 0.1192, 0.9505]]).T)
+
+    xyz_normalized = xyz_linear / np.array([0.950456, 1.0, 1.088754])
+
+  
+    epsilon = 216 / 24389
+    linear_condition = xyz_normalized > epsilon
+    xyz_final = np.where(linear_condition, xyz_normalized ** (1 / 3), (xyz_normalized * 903.3 + 16) / 116)
+
+    L = 116 * xyz_final[:, 1] - 16
+    L = np.clip(L, 0, 100)
+    a = 500 * (xyz_final[:, 0] - xyz_final[:, 1])
+    b = 200 * (xyz_final[:, 1] - xyz_final[:, 2])
+
+    Lab = fold(np.column_stack((L, a, b)),size)
+
+    return Lab
+
+
+def RGB2Lab(img_rgb:np.ndarray):
+
+    img_data,size = __unfold__(img_rgb)
 
     e =  216/24389
 
@@ -101,24 +136,26 @@ def RGB2Lab(img_data:np.ndarray):
 
     return data_CLab
 
-def Lab2Lch(Lab):
+def Lab2Lch(img_Lab):
 
-    L = Lab[:,0]
-    a = Lab[:,1]
-    b = Lab[:,2]
+    Lab,size = __unfold__(img_Lab)
 
-    c = ((a**2)+(b**2))**(1/2)
-    h = np.arctan2(b,a)*(180/np.pi)
+    L, a, b = Lab[:, 0], Lab[:, 1], Lab[:, 2]
+
+    c = np.sqrt(a**2 + b**2)
+    h = np.arctan2(b, a) * (180 / np.pi)
     h[h < 0] += 360
-
-    data_CLch = np.column_stack((L, c, h))
     
-    return  data_CLch
+    Lch = fold(np.column_stack((L, c, h)),size)
+    return Lch
+
+
+
 
 def export_img(dir:str,img_normal:np.ndarray):
 
 
-    img_normal_unfold,size = unfold(img_normal)
+    img_normal_unfold,size = __unfold__(img_normal)
 
     Lab_unfold = RGB2Lab(img_normal_unfold)
     Lch_unfold = Lab2Lch(Lab_unfold)
@@ -151,58 +188,83 @@ def export_img(dir:str,img_normal:np.ndarray):
     hdr_path_out = dir + ".hdr"
     envi.save_image(hdr_path_out, data, metadata=hdr_metadata)
 
-def MaskLab(img:np.ndarray,img_rgb:np.ndarray,LAB="L",mask=(0,150)):
 
+def MaskLab(img: np.ndarray, img_rgb: np.ndarray, LAB: str = "L", mask: tuple = (0, 150)):
     img_ = np.zeros_like(img)
     img_show = np.zeros_like(img)
 
-    inf,sup = mask
+    inf, sup = mask
+    L, a, b = img[:,:,0], img[:,:,1], img[:,:,2]
 
-    L = img[:,:,0]
-    a = img[:,:,1]
-    b = img[:,:,2]
+    condition = np.logical_and
 
     if LAB == "L":
-        #idx = [np.logical_and(L>=inf,L<=sup)].shape[0]
-        img_[:,:,0][np.logical_and(L>=inf,L<=sup)] = L[np.logical_and(L>=inf,L<=sup)]
-        img_[:,:,1][np.logical_and(L>=inf,L<=sup)] = a[np.logical_and(L>=inf,L<=sup)]
-        img_[:,:,2][np.logical_and(L>=inf,L<=sup)] = b[np.logical_and(L>=inf,L<=sup)]
-        
-        img_show[:,:,0][np.logical_and(L>=inf,L<=sup)] = img_rgb[:,:,0][np.logical_and(L>=inf,L<=sup)]
-        img_show[:,:,1][np.logical_and(L>=inf,L<=sup)] = img_rgb[:,:,1][np.logical_and(L>=inf,L<=sup)]
-        img_show[:,:,2][np.logical_and(L>=inf,L<=sup)] = img_rgb[:,:,2][np.logical_and(L>=inf,L<=sup)]
-
-        return img_,img_show
-    
-    if LAB == "a":
-
-        img_[:,:,0][np.logical_and(a>=inf,a<=sup)] = L[np.logical_and(a>=inf,a<=sup)]
-        img_[:,:,1][np.logical_and(a>=inf,a<=sup)] = a[np.logical_and(a>=inf,a<=sup)]
-        img_[:,:,2][np.logical_and(a>=inf,a<=sup)] = b[np.logical_and(a>=inf,a<=sup)]
-
-        img_show[:,:,0][np.logical_and(a>=inf,a<=sup)] = img_rgb[:,:,0][np.logical_and(a>=inf,a<=sup)]
-        img_show[:,:,1][np.logical_and(a>=inf,a<=sup)] = img_rgb[:,:,1][np.logical_and(a>=inf,a<=sup)]
-        img_show[:,:,2][np.logical_and(a>=inf,a<=sup)] = img_rgb[:,:,2][np.logical_and(a>=inf,a<=sup)]
-
-        return img_,img_show
-    
-    if LAB == "b":
-
-        img_[:,:,0][np.logical_and(b>=inf,b<=sup)] = L[np.logical_and(b>=inf,b<=sup)]
-        img_[:,:,1][np.logical_and(b>=inf,b<=sup)] = a[np.logical_and(b>=inf,b<=sup)]
-        img_[:,:,2][np.logical_and(b>=inf,b<=sup)] = b[np.logical_and(b>=inf,b<=sup)]
-
-        img_show[:,:,0][np.logical_and(b>=inf,b<=sup)] = img_rgb[:,:,0][np.logical_and(b>=inf,b<=sup)]
-        img_show[:,:,1][np.logical_and(b>=inf,b<=sup)] = img_rgb[:,:,1][np.logical_and(b>=inf,b<=sup)]
-        img_show[:,:,2][np.logical_and(b>=inf,b<=sup)] = img_rgb[:,:,2][np.logical_and(b>=inf,b<=sup)]
-        
-        return img_,img_show
-    
+        mask_condition = condition(L >= inf, L <= sup)
+    elif LAB == "a":
+        mask_condition = condition(a >= inf, a <= sup)
+    elif LAB == "b":
+        mask_condition = condition(b >= inf, b <= sup)
     else:
         print("valor de Lab invalido")
+        return None, None
+
+    img_[:, :, 0][mask_condition] = L[mask_condition]
+    img_[:, :, 1][mask_condition] = a[mask_condition]
+    img_[:, :, 2][mask_condition] = b[mask_condition]
+
+    img_show[:, :, 0][mask_condition] = img_rgb[:, :, 0][mask_condition]
+    img_show[:, :, 1][mask_condition] = img_rgb[:, :, 1][mask_condition]
+    img_show[:, :, 2][mask_condition] = img_rgb[:, :, 2][mask_condition]
+
+    return img_, img_show
 
 
 """_______________________________________________________________________________________"""
+
+
+
+def MaskLabV2(img_Lab:np.ndarray,img_rgb:np.ndarray,mask_fg:np.ndarray,mask:tuple):
+
+    mask_L, mask_a  = mask
+
+    inf_L, sup_L = mask_L
+    inf_a, sup_a = mask_a
+
+
+    Lab_unfold,_  = __unfold__(img_Lab)
+    RGB_unfold,_  = __unfold__(img_rgb)
+
+    Lab_sample = np.zeros_like(Lab_unfold)
+    RGB_sample = np.zeros_like(RGB_unfold)
+
+    Lab_sample[mask_fg] = Lab_unfold[mask_fg]
+    RGB_sample[mask_fg] = RGB_unfold[mask_fg]
+
+    L, a, b = Lab_unfold[mask_fg][:,0],Lab_unfold[mask_fg][:,1],Lab_unfold[mask_fg][:,2]
+    R, G, B = RGB_unfold[:,0],RGB_sample[:,1],RGB_sample[:,2]
+
+    condition = np.logical_and
+
+    mask_condition = condition(condition(L >= inf_L, L <= sup_L),condition(a >= inf_a, a <= sup_a))
+
+    RGB_bad = np.zeros_like(RGB_unfold)
+    RGB_good = np.zeros_like(RGB_unfold)
+
+    Bad = RGB_bad[mask_fg]
+    Bad[~mask_condition] = RGB_unfold[mask_fg][~mask_condition]
+    RGB_bad[mask_fg] = Bad
+
+    Good = RGB_good[mask_fg]
+    Good[mask_condition] = RGB_unfold[mask_fg][mask_condition]
+    RGB_good[mask_fg] = Good
+
+    RGB_bad = fold(RGB_bad,_)
+    RGB_good = fold(RGB_good,_)
+    
+    PGood =(RGB_good[:,:,0][RGB_good[:,:,0]!=0].shape[0]/mask_fg[mask_fg==True].shape[0])*100
+    PBad = (RGB_bad[:,:,0][RGB_bad[:,:,0]!=0].shape[0]/mask_fg[mask_fg==True].shape[0])*100
+
+    return RGB_bad,PBad, RGB_good, PGood
 
 
 def test_unfold(img_normal):
@@ -275,6 +337,39 @@ def test_result(Maska_verde, img_maska_Verde, Maska_Pinton,img_maska_Pinton, Mas
     porcentaje_malo = porcentaje_Pinton + porcentaje_Verde + porcentaje_SMaduro
 
     return porcentaje_suma, porcentaje_bueno, porcentaje_malo, img_bueno, img_malo
+
+
+def exportar_a_pdf(dataframe):
+    # Crear un archivo PDF
+    pdf_filename = "tabla_resultados.pdf"
+    pdf_path = os.path.join(os.getcwd(), pdf_filename)
+    pdf = SimpleDocTemplate(pdf_path, pagesize=letter)
+
+    # Convertir el DataFrame a una lista de listas
+    data = [list(dataframe.columns)] + dataframe.values.tolist()
+
+    # Crear una tabla a partir de los datos
+    table = Table(data)
+
+    # Estilo de la tabla
+    style = TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                        ('GRID', (0, 0), (-1, -1), 1, colors.black)])
+
+    # Aplicar estilo a la tabla
+    table.setStyle(style)
+
+    # Crear la lista de elementos a añadir al PDF
+    elements = [table]
+
+    # Generar el PDF
+    pdf.build(elements)
+
+    return pdf_filename
 
 
 """
