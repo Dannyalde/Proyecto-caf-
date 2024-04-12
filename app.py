@@ -7,9 +7,6 @@ import cv2 as cv
 import os
 
 
-
-
-
 st.set_page_config(layout="wide")                                         # Configurar el ancho de la página
 directorio_actual = os.path.dirname(os.path.abspath(__file__))            # Obtener la ruta del directorio actual (donde se encuentra el archivo principal)  
 ruta_logo_izquierdo = os.path.join(directorio_actual, r"logo_cafe.png")   # rutas de los logos
@@ -29,7 +26,7 @@ col3.image(logo_derecho, use_column_width=True, width=100)  # Mostrar logotipo d
 # Título centrado en la página
 col2.markdown("<h1 style='text-align: center; font-size: 30px;'>Bienvenidos a la aplicación para clasificar café</h1>", unsafe_allow_html=True)
 
-if 'results_list' not in st.session_state:  # Crear o cargar el DataFrame para almacenar los resultados de las pruebas
+if 'results_list' not in st.session_state:  # Crear el DataFrame para almacenar los resultados de las pruebas
     st.session_state.results_list = []
 
 uploaded_file = col2.file_uploader("", label_visibility = "hidden" )       # Cargar una imagen usuario
@@ -51,12 +48,6 @@ if uploaded_file is not None:
 
     Lab = sc.RGB2Lab(img_normal)
     Malo,CafeMalo,Bueno,CafeBueno = sc.MaskLabV2(Lab,img_normal,sample,((22,99),(15,100)))
-
-
-
-    #Lab = sc.test_unfold(img_normal)
-    #Mas_V, img_mas_V, Mas_P, img_mas_P, Mas_M, img_ma_M, Mas_SM, img_ma_SM = sc.test_mask(Lab, img_normal)
-    #porcentaje_suma, porcentaje_bueno, porcentaje_malo, img_bueno, img_malo = sc.test_result(Mas_V, img_mas_V, Mas_P, img_mas_P, Mas_M, img_ma_M, Mas_SM, img_ma_SM, sample)         
 
     col1.image(Bueno.reshape(img_normal.shape), use_column_width=True, output_format='auto')
     col1.markdown("<p style='text-align: center; font-size: 18px; color: white; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
@@ -81,5 +72,3 @@ if uploaded_file is not None:
         pdf_filename = sc.exportar_a_pdf(pd.DataFrame(st.session_state.results_list))
         st.success(f"Tabla exportada como '{pdf_filename}'")
 
-
-# Definir función para exportar la tabla como PDF
