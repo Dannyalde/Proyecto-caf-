@@ -29,7 +29,7 @@ if 'results_list' not in st.session_state:  # Crear el DataFrame para almacenar 
     st.session_state.results_list = []
 
 # Seleccionar método de carga de imagen
-method = col2.radio(" ", ["Cargar imagen desde el computador", "Tomar una foto con la cámara"])
+method = col2.radio(" ", ["Tomar una foto con la cámara", "Cargar imagen desde el computador" ])
 
 uploaded_file = None
 if method == "Cargar imagen desde el computador":
