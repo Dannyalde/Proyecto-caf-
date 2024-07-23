@@ -128,7 +128,9 @@ if uploaded_file is not None and show_image:
     st.image(image, use_column_width=True)
 
 
-    # Guardar la imagen para su procesamiento
+if uploaded_file is not None:
+
+    image = Image.open(uploaded_file) 
     path = "imagen_user.jpg"
     image.save(path)
 
@@ -137,8 +139,10 @@ if uploaded_file is not None and show_image:
     img = img_03MP
     img_normal, ref_white, mean, sample = sc.Normal(img, white_limit=240)
 
+    col1, col2 = st.columns(2)
     Lab = sc.RGB2Lab(img_normal)
     Malo, CafeMalo, Bueno, CafeBueno = sc.MaskLabV2(Lab, img_normal, sample, ((22, 99), (15, 100)))
+
     col1, col2 = st.columns(2)
 
     with col1:
@@ -150,3 +154,26 @@ if uploaded_file is not None and show_image:
         st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
 
 
+# Crear el DataFrame para almacenar los resultados de las pruebas
+if 'results_list' not in st.session_state:
+    st.session_state.results_list = []
+
+if uploaded_file is not None:
+    num_prueba = len(st.session_state.results_list) + 1  # Obtener el número de prueba
+    fecha_hora_actual = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')  # Obtener la fecha y hora actual
+
+    st.session_state.results_list.append({
+        "#prueba": num_prueba,
+        "Fecha y Hora": fecha_hora_actual,
+        "% cafe bueno": str(CafeBueno)[:6],
+        "% cafe malo": str(CafeMalo)[:6]
+    })
+
+   # Mostrar la tabla de resultados
+    st.markdown("<h2 style='text-align: center;'>Resultados de las pruebas</h2>", unsafe_allow_html=True)
+    st.table(pd.DataFrame(st.session_state.results_list).style.set_properties(**{'text-align': 'center'}))
+
+    # Agregar un botón para exportar la tabla como PDF
+    if st.button('Exportar a PDF'):
+        pdf_filename = sc.exportar_a_pdf(pd.DataFrame(st.session_state.results_list))
+        st.success(f"Tabla exportada como '{pdf_filename}'")
