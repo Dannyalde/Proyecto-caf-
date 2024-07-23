@@ -43,11 +43,15 @@ st.markdown(
         height: auto;
     }
     @media (max-width: 600px) {
+        .title {
+            font-size: 48px;
+        }
         .column-container {
             flex-direction: column;
         }
         .column {
             width: 100% !important;
+            padding: 0;
         }
     }
     </style>
