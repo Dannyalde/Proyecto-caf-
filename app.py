@@ -1,5 +1,8 @@
 import streamlit as st
 from PIL import Image
+import pandas as pd
+import source as sc
+import cv2 as cv
 import os
 
 st.set_page_config(layout="wide")  # Configurar el ancho de la página
@@ -123,3 +126,27 @@ else:
 if uploaded_file is not None and show_image:
     image = Image.open(uploaded_file)
     st.image(image, use_column_width=True)
+
+
+    # Guardar la imagen para su procesamiento
+    path = "imagen_user.jpg"
+    image.save(path)
+
+    # Procesar la imagen
+    img_03MP = cv.resize(cv.imread(path)[..., ::-1], (1536, 2048))
+    img = img_03MP
+    img_normal, ref_white, mean, sample = sc.Normal(img, white_limit=240)
+
+    Lab = sc.RGB2Lab(img_normal)
+    Malo, CafeMalo, Bueno, CafeBueno = sc.MaskLabV2(Lab, img_normal, sample, ((22, 99), (15, 100)))
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.image(Bueno.reshape(img_normal.shape), use_column_width=True, output_format='auto')
+        st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
+
+    with col2:
+        st.image(Malo.reshape(img_normal.shape), use_column_width=True, output_format='auto')
+        st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
+
+
