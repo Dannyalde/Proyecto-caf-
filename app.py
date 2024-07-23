@@ -1,15 +1,16 @@
 import streamlit as st
-import pandas as pd
 from PIL import Image
 import os
 
 st.set_page_config(layout="wide")  # Configurar el ancho de la página
 
-directorio_actual = os.path.dirname(os.path.abspath(__file__))  # Obtener la ruta del directorio actual (donde se encuentra el archivo principal)
+# Obtener la ruta del directorio actual (donde se encuentra el archivo principal)
+directorio_actual = os.path.dirname(os.path.abspath(__file__))
 ruta_logo_izquierdo = os.path.join(directorio_actual, r"logo_cafe.png")  # rutas de los logos
 ruta_logo_derecho = os.path.join(directorio_actual, r"logoUA.png")
 
-logo_izquierdo = Image.open(ruta_logo_izquierdo)  # Cargar las imágenes
+# Cargar las imágenes
+logo_izquierdo = Image.open(ruta_logo_izquierdo)
 logo_derecho = Image.open(ruta_logo_derecho)
 
 # CSS para personalizar el título, los radio buttons y hacer que el diseño sea responsivo
@@ -57,6 +58,14 @@ st.markdown(
         width: 20px; /* Tamaño del radio button */
         height: 20px; /* Tamaño del radio button */
     }
+    .camera-container {
+        width: 100%; /* Asegura que la cámara use el ancho completo */
+        display: flex;
+        justify-content: center;
+    }
+    .camera-container video {
+        width: 100% !important; /* Asegura que el video use el ancho completo */
+    }
     @media (max-width: 600px) {
         .title {
             font-size: 48px;
@@ -73,6 +82,9 @@ st.markdown(
         }
         .horizontal-radio label {
             margin: 10px 0;
+        }
+        .camera-container {
+            width: 100%;
         }
     }
     </style>
@@ -94,7 +106,7 @@ with col2:
 
 # Crear el radio button de manera horizontal
 st.markdown("<div class='horizontal-radio'>", unsafe_allow_html=True)
-method = st.radio("", ["Tomar una foto con la cámara", "Cargar imagen"], index=0, format_func=lambda x: x)
+method = st.radio("", ["Tomar una foto con la cámara", "Cargar imagen"], index=0, horizontal=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
 show_image = False
@@ -111,5 +123,3 @@ else:
 if uploaded_file is not None and show_image:
     image = Image.open(uploaded_file)
     st.image(image, use_column_width=True)
-
-# El resto del código está comentado para trabajarlo paso a paso
