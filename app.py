@@ -9,12 +9,10 @@ st.set_page_config(layout="wide")  # Configurar el ancho de la página
 
 # Obtener la ruta del directorio actual (donde se encuentra el archivo principal)
 directorio_actual = os.path.dirname(os.path.abspath(__file__))
-ruta_logo_izquierdo = os.path.join(directorio_actual, r"logo_cafe.png")  # rutas de los logos
-ruta_logo_derecho = os.path.join(directorio_actual, r"logoUA.png")
+ruta_logo = os.path.join(directorio_actual, r"logo2.png")  # rutas de los logos
 
-# Cargar las imágenes
-logo_izquierdo = Image.open(ruta_logo_izquierdo)
-logo_derecho = Image.open(ruta_logo_derecho)
+# Cargar las imágen logo
+logo = Image.open(ruta_logo)
 
 # CSS para personalizar el título, los radio buttons y hacer que el diseño sea responsivo
 st.markdown(
@@ -96,16 +94,9 @@ st.markdown(
 )
 
 # Título en la parte superior
-st.markdown("<h1 class='title'>Bienvenidos a la aplicación para clasificar café</h1>", unsafe_allow_html=True)
+st.markdown('<div style="text-align:center; font-size:40px; font-weight:bold;">Clasificador de café cereza</div>', unsafe_allow_html=True)
+st.image(logo, use_column_width=True)
 
-# Crear las columnas para los logos
-col1, col2 = st.columns(2)
-
-with col1:
-    st.image(logo_izquierdo, use_column_width=True)
-
-with col2:
-    st.image(logo_derecho, use_column_width=True)
 
 # Crear el radio button de manera horizontal
 st.markdown("<div class='horizontal-radio'>", unsafe_allow_html=True)
