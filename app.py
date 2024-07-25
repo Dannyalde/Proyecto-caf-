@@ -93,9 +93,11 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Título en la parte superior
-st.markdown('<div style="text-align:center; font-size:40px; font-weight:bold;">Clasificador de café cereza</div>', unsafe_allow_html=True)
-st.image(logo, use_column_width=True)
+
+st.markdown('<div style="font-family:Arial; font-size:20px; font-weight:bold;">Clasificador de café cereza</div>', unsafe_allow_html=True)
+st.image(logo)
+
+
 
 
 # Crear el radio button de manera horizontal
