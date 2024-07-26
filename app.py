@@ -95,18 +95,25 @@ image_base64 = sc.load_image(ruta_logo)
 # HTML y CSS para el título y la imagen
 html_content = f"""
     <style>
+    body {{
+        margin-top: 0px;
+        padding-top: 0px;
+    }}
     .title {{
         text-align: center;
         font-weight: bold;
         font-size: 22px;  /* Tamaño de la letra */
         font-family: 'Arial', sans-serif;
+        margin-top: 0;  /* Asegura que el título quede bien arriba */
+        margin-bottom: 0px;  /* Espacio mínimo entre el título y la imagen */
+        padding-top: 0px;
     }}
     .image-container {{
         text-align: center;
     }}
     .image-container img {{
-        width: 300px;  /* Ajusta este valor según lo necesites */
-        height: auto;  /* Mantén la proporción de la imagen */
+        width: 300px;  
+        height: auto;  
     }}
     </style>
     <h1 class="title">Clasificador de café cereza</h1>
