@@ -109,35 +109,48 @@ html_content = f"""
         padding-top: 0px;
     }}
     .image-container {{
-        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;  /* Espacio entre la imagen y el radio button */
     }}
     .image-container img {{
         width: 300px;  
         height: auto;  
     }}
+    .radio-container {{
+        display: flex;
+        flex-direction: column;  /* Coloca los radio buttons verticalmente */
+        justify-content: center;
+        margin-top: 0px;  /* Espacio mínimo entre la imagen y el radio button */
+    }}
+
     </style>
     <h1 class="title">Clasificador de café cereza</h1>
     <div class="image-container">
         <img src="data:image/png;base64,{image_base64}" alt="Descripción de la imagen">
+        <div class="radio-container">
+            <label>
+                <input type="radio" name="method" value="Tomar una foto con la cámara" checked>
+                Tomar una foto con la cámara
+            </label>
+            <label>
+                <input type="radio" name="method" value="Cargar imagen">
+                Cargar imagen
+            </label>
+        </div>
     </div>
     """
 
 # Mostrar el contenido HTML en Streamlit
 st.markdown(html_content, unsafe_allow_html=True)
-
+method = st.radio("", ["Tomar una foto con la cámara", "Cargar imagen"], index=0, horizontal=False)
 
 
 
 #st.markdown('<div style="font-family:Arial; font-size:20px; font-weight:bold;">Clasificador de café cereza</div>', unsafe_allow_html=True)
 #st.image(logo)
 
-
-
-
-# Crear el radio button de manera horizontal
-st.markdown("<div class='horizontal-radio'>", unsafe_allow_html=True)
-method = st.radio("", ["Tomar una foto con la cámara", "Cargar imagen"], index=0, horizontal=True)
-st.markdown("</div>", unsafe_allow_html=True)
 
 show_image = False
 
