@@ -115,7 +115,7 @@ html_content = f"""
         gap: 10px;  /* Espacio entre la imagen y el radio button */
     }}
     .image-container img {{
-        width: 300px;  
+        width: 200px;  
         height: auto;  
     }}
     .radio-container {{
