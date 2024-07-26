@@ -8,12 +8,19 @@ from rembg import remove
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+import base64
 import os
 
 
 
 fold = lambda unfold_image,size: unfold_image.reshape(size)
 read = lambda path: cv.imread(path)[...,::-1]
+
+
+
+def load_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode("utf-8")
 
 
 def __unfold__(image_rgb:np.array):

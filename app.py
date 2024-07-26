@@ -11,9 +11,6 @@ st.set_page_config(layout="wide")  # Configurar el ancho de la página
 directorio_actual = os.path.dirname(os.path.abspath(__file__))
 ruta_logo = os.path.join(directorio_actual, r"logo2.png")  # rutas de los logos
 
-# Cargar las imágen logo
-logo = Image.open(ruta_logo)
-
 # CSS para personalizar el título, los radio buttons y hacer que el diseño sea responsivo
 st.markdown(
     """
@@ -93,9 +90,39 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+image_base64 = sc.load_image(ruta_logo)
 
-st.markdown('<div style="font-family:Arial; font-size:20px; font-weight:bold;">Clasificador de café cereza</div>', unsafe_allow_html=True)
-st.image(logo)
+# HTML y CSS para el título y la imagen
+html_content = f"""
+    <style>
+    .title {{
+        text-align: center;
+        font-weight: bold;
+        font-size: 22px;  /* Tamaño de la letra */
+        font-family: 'Arial', sans-serif;
+    }}
+    .image-container {{
+        text-align: center;
+    }}
+    .image-container img {{
+        width: 300px;  /* Ajusta este valor según lo necesites */
+        height: auto;  /* Mantén la proporción de la imagen */
+    }}
+    </style>
+    <h1 class="title">Clasificador de café cereza</h1>
+    <div class="image-container">
+        <img src="data:image/png;base64,{image_base64}" alt="Descripción de la imagen">
+    </div>
+    """
+
+# Mostrar el contenido HTML en Streamlit
+st.markdown(html_content, unsafe_allow_html=True)
+
+
+
+
+#st.markdown('<div style="font-family:Arial; font-size:20px; font-weight:bold;">Clasificador de café cereza</div>', unsafe_allow_html=True)
+#st.image(logo)
 
 
 
