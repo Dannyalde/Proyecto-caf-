@@ -1,83 +1,56 @@
 import streamlit as st
 from PIL import Image
-import pandas as pd
-import source as sc
-import cv2 as cv
+import base64
 import os
 
-st.set_page_config(layout="wide")  # Configurar el ancho de la página
+# Configurar la página
+st.set_page_config(layout="wide")
 
-# Obtener la ruta del directorio actual (donde se encuentra el archivo principal)
+# Obtener la ruta del directorio actual
 directorio_actual = os.path.dirname(os.path.abspath(__file__))
-ruta_logo = os.path.join(directorio_actual, r"logo2.png")  # rutas de los logos
+ruta_logo = os.path.join(directorio_actual, r"logo2.png")
 
-# CSS para personalizar el título, los radio buttons y hacer que el diseño sea responsivo
+def load_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+image_base64 = load_image(ruta_logo)
+
+# CSS para la página
 st.markdown(
     """
     <style>
     .title {
         text-align: center;
-        font-size: 64px;
-        margin-bottom: 40px;
-    }
-    .column-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .column {
-        flex: 1;
-        padding: 10px;
+        font-size: 36px;
+        margin-bottom: 20px;
     }
     .image-container {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;  /* Ajusta el espacio entre la imagen y los radio buttons */    
+        gap: 20px;
     }
     .image-container img {
-        max-width: 100%;
+        width: 200px;
         height: auto;
     }
-    .horizontal-radio {
+    .selectbox-container {
         display: flex;
-        flex-direction: column; /* Asegura que los radio buttons estén uno debajo del otro */
-        justify-content: center;
-        margin: 0;  /* Asegura que el margen sea mínimo */
-        font-size: 24px; /* Tamaño de la fuente */
+        flex-direction: column;
+        margin: 0;
     }
-    .horizontal-radio label {
-        margin: 0 20px;
-        font-size: 24px; /* Tamaño del texto */
-        display: flex;
-        align-items: center;
-    }
-    .horizontal-radio input[type="radio"] {
-        margin-right: 10px; /* Espacio entre el radio button y el texto */
-        width: 20px; /* Tamaño del radio button */
-        height: 20px; /* Tamaño del radio button */
-    }
-    .camera-container {
-        width: 100%; /* Asegura que la cámara use el ancho completo */
-        display: flex;
-        justify-content: center;
-    }
-    .camera-container video {
-        width: 100% !important; /* Asegura que el video use el ancho completo */
+    .selectbox-container select {
+        font-size: 16px;
+        margin: 5px 0;
     }
     @media (max-width: 600px) {
         .title {
-            font-size: 48px;
+            font-size: 28px;
         }
-        .column-container {
-            flex-direction: column;
-        }
-        .column {
-            width: 100% !important;
-            padding: 0;
         .image-container {
             flex-direction: column;
-            gap: 10px; /* Ajusta el espacio en vistas móviles */
+            gap: 10px;
         }
     }
     </style>
@@ -85,58 +58,29 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-image_base64 = sc.load_image(ruta_logo)
+# Mostrar el título y la imagen
+st.markdown(f'<h1 class="title">Clasificador de café cereza</h1>', unsafe_allow_html=True)
+st.markdown(f'<div class="image-container"><img src="data:image/png;base64,{image_base64}" alt="Descripción de la imagen"></div>', unsafe_allow_html=True)
 
-# HTML y CSS para el título y la imagen
-html_content = f"""
-    <style>
-    body {{
-        margin-top: 0px;
-        padding-top: 0px;
-    }}
-    .title {{
-        text-align: center;
-        font-weight: bold;
-        font-size: 22px;  /* Tamaño de la letra */
-        font-family: 'Arial', sans-serif;
-        margin-top: 0;  /* Asegura que el título quede bien arriba */
-        margin-bottom: 0px;  /* Espacio mínimo entre el título y la imagen */
-        padding-top: 0px;
-    }}
-    .image-container {{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;  /* Espacio entre la imagen y el radio button */
-    }}
-    .image-container img {{
-        width: 200px;  
-        height: auto;  
-    }}
-    .radio-container {{
-        display: flex;
-        flex-direction: column;  /* Coloca los radio buttons verticalmente */
-        justify-content: center;
-        margin-top: 0px;  /* Espacio mínimo entre la imagen y el radio button */
-    }}
+# Selección de opción usando Streamlit
+selected_option = st.selectbox(
+    'Seleccionar opción:',
+    ['Tomar foto', 'Cargar imagen'],
+    index=0  # Establecer "Tomar foto" como opción por defecto
+)
 
-    </style>
-    <h1 class="title">Clasificador de café cereza</h1>
-    <div class="image-container">
-        <img src="data:image/png;base64,{image_base64}" alt="Descripción de la imagen">
-        <div class="radio-container">
-            <label>
-                <input type="radio" name="method" value="Tomar foto" checked>
-                Tomar foto
-            </label>
-            <label>
-                <input type="radio" name="method" value="Cargar imagen">
-                Cargar imagen
-            </label>
-        </div>
-    </div>
-    """
+# Almacenar la selección en el estado de sesión
+st.session_state['selected_option'] = selected_option
 
+# Mostrar la interfaz según la selección
+if selected_option == "Cargar imagen":
+    uploaded_file = st.file_uploader("Sube tu imagen", type=["jpg", "jpeg", "png"])
+    if uploaded_file:
+        st.image(uploaded_file, caption='Imagen cargada')
+else:
+    uploaded_file = st.camera_input("Toma una foto")
+    if uploaded_file:
+        st.image(uploaded_file, caption='Foto tomada')
 
-# Mostrar el contenido HTML en Streamlit
-st.markdown(html_content, unsafe_allow_html=True)
+# Mostrar la selección actual
+st.write(f"Selección actual: {selected_option}")
