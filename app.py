@@ -78,6 +78,17 @@ st.markdown(
         align-items: center;
         justify-content: center;
     }
+    /* Estilo para las columnas de imágenes */
+    .column-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+    .column-container > div {
+        flex: 1 1 45%; /* Ajusta el tamaño de las columnas en pantallas pequeñas */
+        min-width: 300px; /* Evita que las columnas se vuelvan demasiado pequeñas */
+    }
     </style>
     """,
     unsafe_allow_html=True
