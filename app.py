@@ -74,6 +74,7 @@ st.markdown(
     }
     .radio-buttons-container label {
         margin: 0px; /* Reduce el margen entre los labels de los radio buttons */
+        font-size: 5vw; /* Ajusta el tamaño de la fuente para los labels de los radio buttons */
     }
     .uploader-container {
         margin-top: 0; /* Reduce el espacio entre los radio buttons y el uploader */
