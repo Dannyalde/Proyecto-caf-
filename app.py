@@ -50,6 +50,7 @@ st.markdown(
         flex-direction: column;
         align-items: center;
         margin: 0; /* Reduce el espacio entre la imagen y los radio buttons */
+        padding: 0; /* Elimina el padding */
     }
     .image-container img {
         width: 60vw; /* Ajusta el tamaño de la imagen para dispositivos móviles */
@@ -59,9 +60,11 @@ st.markdown(
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
         margin: 0; /* Reduce el espacio entre los radio buttons y el siguiente contenido */
         padding: 0;
+    }
+    .radio-buttons-container label {
+        margin: 0px; /* Reduce el margen entre los labels de los radio buttons */
     }
     .uploader-container {
         margin-top: 0; /* Reduce el espacio entre los radio buttons y el uploader */
