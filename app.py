@@ -36,8 +36,7 @@ st.markdown(
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-top: 0px; /* Reduce el espacio entre el título y la imagen */
-        margin-bottom: 0px; /* Reduce el espacio entre la imagen y los radio buttons */
+        margin: 0px 0; /* Reduce el espacio entre la imagen y los radio buttons */
     }
     .image-container img {
         width: 50vw; /* Ajusta el tamaño de la imagen para dispositivos móviles */
@@ -45,8 +44,9 @@ st.markdown(
     }
     .radio-buttons-container {
         display: flex;
-        justify-content: center;
-        margin-bottom: 0px; /* Reduce el espacio entre los radio buttons y el siguiente contenido */
+        flex-direction: column;
+        align-items: center;
+        margin: 0px 0; /* Reduce el espacio entre los radio buttons y el siguiente contenido */
     }
     .uploader-container {
         margin-top: 0px; /* Reduce el espacio entre los radio buttons y el uploader */
@@ -64,11 +64,11 @@ st.markdown(f'<div class="image-container"><img src="data:image/png;base64,{imag
 if 'selected_option' not in st.session_state:
     st.session_state['selected_option'] = "Tomar foto"
 
-# Crear una columna central para dispositivos móviles
-col1, col2, col3 = st.columns([3, 3, 1])
+# Crear una única columna para centrar el contenido
+col1 = st.columns([1])[0]
 
 # Colocar los radio buttons en la columna central
-with col2:
+with col1:
     st.markdown('<div class="radio-buttons-container">', unsafe_allow_html=True)
     method = st.radio(
         label="",
