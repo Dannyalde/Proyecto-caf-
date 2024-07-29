@@ -1,5 +1,8 @@
 import streamlit as st
 from PIL import Image
+import pandas as pd
+import source as sc
+import cv2 as cv
 import base64
 import os
 
@@ -21,15 +24,6 @@ def load_image(image_path):
 
 # Cargar y codificar la imagen del logo
 image_base64 = load_image(ruta_logo)
-
-st.markdown("""
-    <style>
-    [data-testid=column]:nth-of-type(1) [data-testid=stVerticalBlock]{
-        gap: 0rem;
-    }
-    </style>
-    """,unsafe_allow_html=True)
-
 
 # CSS para la página
 
@@ -113,21 +107,71 @@ with col1:
 
 # Almacenar la selección en el estado de sesión
 st.session_state['selected_option'] = method
+show_image = False
 
 # Mostrar la interfaz según la selección
 st.markdown('<div class="uploader-container">', unsafe_allow_html=True)
+
 if method == "Cargar imagen":
     uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"])
-    if uploaded_file:
-        try:
-            st.image(uploaded_file, use_column_width=True)
-        except Exception as e:
-            st.error(f"Error al mostrar la imagen: {e}")
+    show_image = True
+
 else:
     uploaded_file = st.camera_input("")
-    if uploaded_file:
-        try:
-            st.image(uploaded_file, use_column_width=True)
-        except Exception as e:
-            st.error(f"Error al mostrar la foto: {e}")
-st.markdown('</div>', unsafe_allow_html=True)
+    show_image = False
+
+# Mostrar la imagen seleccionada o tomada
+if uploaded_file is not None and show_image:
+    image = Image.open(uploaded_file)
+    st.image(image, use_column_width=True)
+
+
+if uploaded_file is not None:
+
+    image = Image.open(uploaded_file) 
+    path = "imagen_user.jpg"
+    image.save(path)
+
+    # Procesar la imagen
+    img_03MP = cv.resize(cv.imread(path)[..., ::-1], (1536, 2048))
+    img = img_03MP
+    img_normal, ref_white, mean, sample = sc.Normal(img, white_limit=240)
+
+    col1, col2 = st.columns(2)
+    Lab = sc.RGB2Lab(img_normal)
+    Malo, CafeMalo, Bueno, CafeBueno = sc.MaskLabV2(Lab, img_normal, sample, ((22, 99), (15, 100)))
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.image(Bueno.reshape(img_normal.shape), use_column_width=True, output_format='auto')
+        st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
+
+    with col2:
+        st.image(Malo.reshape(img_normal.shape), use_column_width=True, output_format='auto')
+        st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
+
+
+# Crear el DataFrame para almacenar los resultados de las pruebas
+if 'results_list' not in st.session_state:
+    st.session_state.results_list = []
+
+if uploaded_file is not None:
+    num_prueba = len(st.session_state.results_list) + 1  # Obtener el número de prueba
+    fecha_hora_actual = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')  # Obtener la fecha y hora actual
+
+    st.session_state.results_list.append({
+        "#prueba": num_prueba,
+        "Fecha y Hora": fecha_hora_actual,
+        "% cafe bueno": str(CafeBueno)[:6],
+        "% cafe malo": str(CafeMalo)[:6]
+    })
+
+   # Mostrar la tabla de resultados
+    st.markdown("<h2 style='text-align: center;'>Resultados de las pruebas</h2>", unsafe_allow_html=True)
+    st.table(pd.DataFrame(st.session_state.results_list).style.set_properties(**{'text-align': 'center'}))
+
+    # Agregar un botón para exportar la tabla como PDF
+    if st.button('Exportar a PDF'):
+        pdf_filename = sc.exportar_a_pdf(pd.DataFrame(st.session_state.results_list))
+        st.success(f"Tabla exportada como '{pdf_filename}'")
