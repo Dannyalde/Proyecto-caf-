@@ -23,6 +23,23 @@ def load_image(image_path):
 image_base64 = load_image(ruta_logo)
 
 # CSS para la página
+
+st.markdown("""
+    <style>
+    .stRadio [role=radiogroup]{
+        align-items: center;
+        justify-content: center;
+    }
+    </style>
+""",unsafe_allow_html=True)
+
+options = ["An option", "🦈", "Another option", "🎨", "x²"]
+
+"# 🎯 Center align elements"
+st.radio("Select an option", options=options, horizontal=True)
+
+
+
 st.markdown(
     """
     <style>
@@ -46,6 +63,7 @@ st.markdown(
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         margin: 0px 0; /* Reduce el espacio entre los radio buttons y el siguiente contenido */
     }
     .uploader-container {
