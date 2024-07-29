@@ -28,7 +28,7 @@ st.markdown(
     <style>
     .title {
         text-align: center;
-        font-size: 36px;
+        font-size: 5vw; /* Ajusta el tamaño del título para dispositivos móviles */
         margin: 0; /* Reduce el espacio superior e inferior del título */
         padding-top: 0; /* Asegura que no haya espacio adicional en la parte superior */
     }
@@ -40,7 +40,7 @@ st.markdown(
         margin-bottom: 0px; /* Reduce el espacio entre la imagen y los radio buttons */
     }
     .image-container img {
-        width: 250px;
+        width: 30vw; /* Ajusta el tamaño de la imagen para dispositivos móviles */
         height: auto;
     }
     .radio-buttons-container {
@@ -64,8 +64,8 @@ st.markdown(f'<div class="image-container"><img src="data:image/png;base64,{imag
 if 'selected_option' not in st.session_state:
     st.session_state['selected_option'] = "Tomar foto"
 
-# Crear tres columnas
-col1, col2, col3 = st.columns([2.2, 1, 2])
+# Crear una columna central para dispositivos móviles
+col1, col2, col3 = st.columns([1, 2, 1])
 
 # Colocar los radio buttons en la columna central
 with col2:
@@ -82,6 +82,7 @@ with col2:
 st.session_state['selected_option'] = method
 
 # Mostrar la interfaz según la selección
+st.markdown('<div class="uploader-container">', unsafe_allow_html=True)
 if method == "Cargar imagen":
     uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"])
     if uploaded_file:
@@ -96,5 +97,4 @@ else:
             st.image(uploaded_file, use_column_width=True)
         except Exception as e:
             st.error(f"Error al mostrar la foto: {e}")
-
 st.markdown('</div>', unsafe_allow_html=True)
