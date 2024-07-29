@@ -37,7 +37,7 @@ st.markdown(
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin: 0px 0; /* Reduce el espacio entre la imagen y los radio buttons */
+        margin: 0; /* Reduce el espacio entre la imagen y los radio buttons */
     }
     .image-container img {
         width: 60vw; /* Ajusta el tamaño de la imagen para dispositivos móviles */
@@ -48,10 +48,12 @@ st.markdown(
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin: 0px 0; /* Reduce el espacio entre los radio buttons y el siguiente contenido */
+        margin: 0; /* Reduce el espacio entre los radio buttons y el siguiente contenido */
+        padding: 0;
     }
     .uploader-container {
-        margin-top: 0px; /* Reduce el espacio entre los radio buttons y el uploader */
+        margin-top: 0; /* Reduce el espacio entre los radio buttons y el uploader */
+        padding: 0; /* Elimina el padding */
     }
     .stRadio [role=radiogroup]{
         align-items: center;
