@@ -22,6 +22,15 @@ def load_image(image_path):
 # Cargar y codificar la imagen del logo
 image_base64 = load_image(ruta_logo)
 
+st.markdown("""
+    <style>
+    [data-testid=column]:nth-of-type(1) [data-testid=stVerticalBlock]{
+        gap: 0rem;
+    }
+    </style>
+    """,unsafe_allow_html=True)
+
+
 # CSS para la página
 
 st.markdown(
