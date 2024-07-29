@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de localStorage</title>
+    <style>
+        .radio-container {
+            display: flex;
+            flex-direction: column;
+            margin: 20px;
+        }
+        .radio-container label {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prueba de localStorage</h1>
+    <div class="radio-container">
+        <label>
+            <input type="radio" name="method" value="Tomar foto" id="radio1">
+            Tomar foto
+        </label>
+        <label>
+            <input type="radio" name="method" value="Cargar imagen" id="radio2">
+            Cargar imagen
+        </label>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Script cargado correctamente");
+
+        try {
+            if (window.localStorage) {
+                console.log("localStorage está disponible.");
+                const savedOption = localStorage.getItem('selected_option');
+                console.log("Saved Option:", savedOption);
+                if (savedOption) {
+                    const radioButton = document.querySelector(`input[name="method"][value="${savedOption}"]`);
+                    if (radioButton) {
+                        radioButton.checked = true;
+                    }
+                }
+                document.querySelectorAll('input[name="method"]').forEach((radio) => {
+                    radio.addEventListener('change', function() {
+                        localStorage.setItem('selected_option', this.value);
+                        console.log("Opción seleccionada:", this.value);
+                    });
+                });
+            } else {
+                console.error("localStorage no está disponible.");
+            }
+        } catch (error) {
+            console.error("Error al acceder a localStorage:", error);
+        }
+    });
+    </script>
+</body>
+</html>
