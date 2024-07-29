@@ -65,7 +65,7 @@ if 'selected_option' not in st.session_state:
     st.session_state['selected_option'] = "Tomar foto"
 
 # Crear una columna central para dispositivos móviles
-col1, col2, col3 = st.columns([1, 3, 1])
+col1, col2, col3 = st.columns([3, 3, 1])
 
 # Colocar los radio buttons en la columna central
 with col2:
