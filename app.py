@@ -8,12 +8,18 @@ st.set_page_config(layout="wide")
 
 # Obtener la ruta del directorio actual
 directorio_actual = os.path.dirname(os.path.abspath(__file__))
-ruta_logo = os.path.join(directorio_actual, r"logo2.png")
+ruta_logo = os.path.join(directorio_actual, "logo2.png")
 
 def load_image(image_path):
-    with open(image_path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
+    """Carga una imagen y la convierte a base64."""
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except Exception as e:
+        st.error(f"Error al cargar la imagen: {e}")
+        return ""
 
+# Cargar y codificar la imagen del logo
 image_base64 = load_image(ruta_logo)
 
 # CSS para la página
@@ -23,35 +29,27 @@ st.markdown(
     .title {
         text-align: center;
         font-size: 36px;
-        margin-bottom: 20px;
+        margin: 0; /* Reduce el espacio superior e inferior del título */
+        padding-top: 0; /* Asegura que no haya espacio adicional en la parte superior */
     }
     .image-container {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        gap: 20px;
+        margin-top: 0px; /* Reduce el espacio entre el título y la imagen */
+        margin-bottom: 0px; /* Reduce el espacio entre la imagen y los radio buttons */
     }
     .image-container img {
-        width: 200px;
+        width: 250px;
         height: auto;
     }
-    .selectbox-container {
+    .radio-buttons-container {
         display: flex;
-        flex-direction: column;
-        margin: 0;
+        justify-content: center;
+        margin-bottom: 0px; /* Reduce el espacio entre los radio buttons y el siguiente contenido */
     }
-    .selectbox-container select {
-        font-size: 16px;
-        margin: 5px 0;
-    }
-    @media (max-width: 600px) {
-        .title {
-            font-size: 28px;
-        }
-        .image-container {
-            flex-direction: column;
-            gap: 10px;
-        }
+    .uploader-container {
+        margin-top: 0px; /* Reduce el espacio entre los radio buttons y el uploader */
     }
     </style>
     """,
@@ -60,27 +58,43 @@ st.markdown(
 
 # Mostrar el título y la imagen
 st.markdown(f'<h1 class="title">Clasificador de café cereza</h1>', unsafe_allow_html=True)
-st.markdown(f'<div class="image-container"><img src="data:image/png;base64,{image_base64}" alt="Descripción de la imagen"></div>', unsafe_allow_html=True)
+st.markdown(f'<div class="image-container"><img src="data:image/png;base64,{image_base64}" alt="Logo"></div>', unsafe_allow_html=True)
 
-# Selección de opción usando Streamlit
-selected_option = st.selectbox(
-    'Seleccionar opción:',
-    ['Tomar foto', 'Cargar imagen'],
-    index=0  # Establecer "Tomar foto" como opción por defecto
-)
+# Inicializar el estado de sesión si no está presente
+if 'selected_option' not in st.session_state:
+    st.session_state['selected_option'] = "Tomar foto"
+
+# Crear tres columnas
+col1, col2, col3 = st.columns([2.2, 1, 2])
+
+# Colocar los radio buttons en la columna central
+with col2:
+    st.markdown('<div class="radio-buttons-container">', unsafe_allow_html=True)
+    method = st.radio(
+        label="",
+        options=["Tomar foto", "Cargar imagen"],
+        index=["Tomar foto", "Cargar imagen"].index(st.session_state['selected_option']),
+        horizontal=True
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Almacenar la selección en el estado de sesión
-st.session_state['selected_option'] = selected_option
+st.session_state['selected_option'] = method
 
 # Mostrar la interfaz según la selección
-if selected_option == "Cargar imagen":
-    uploaded_file = st.file_uploader("Sube tu imagen", type=["jpg", "jpeg", "png"])
+if method == "Cargar imagen":
+    uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"])
     if uploaded_file:
-        st.image(uploaded_file, caption='Imagen cargada')
+        try:
+            st.image(uploaded_file, use_column_width=True)
+        except Exception as e:
+            st.error(f"Error al mostrar la imagen: {e}")
 else:
-    uploaded_file = st.camera_input("Toma una foto")
+    uploaded_file = st.camera_input("")
     if uploaded_file:
-        st.image(uploaded_file, caption='Foto tomada')
+        try:
+            st.image(uploaded_file, use_column_width=True)
+        except Exception as e:
+            st.error(f"Error al mostrar la foto: {e}")
 
-# Mostrar la selección actual
-st.write(f"Selección actual: {selected_option}")
+st.markdown('</div>', unsafe_allow_html=True)
