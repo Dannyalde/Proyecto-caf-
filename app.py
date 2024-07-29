@@ -24,22 +24,6 @@ image_base64 = load_image(ruta_logo)
 
 # CSS para la página
 
-st.markdown("""
-    <style>
-    .stRadio [role=radiogroup]{
-        align-items: center;
-        justify-content: center;
-    }
-    </style>
-""",unsafe_allow_html=True)
-
-options = ["An option", "🦈", "Another option", "🎨", "x²"]
-
-"# 🎯 Center align elements"
-st.radio("Select an option", options=options, horizontal=True)
-
-
-
 st.markdown(
     """
     <style>
@@ -56,7 +40,7 @@ st.markdown(
         margin: 0px 0; /* Reduce el espacio entre la imagen y los radio buttons */
     }
     .image-container img {
-        width: 50vw; /* Ajusta el tamaño de la imagen para dispositivos móviles */
+        width: 60vw; /* Ajusta el tamaño de la imagen para dispositivos móviles */
         height: auto;
     }
     .radio-buttons-container {
@@ -68,6 +52,10 @@ st.markdown(
     }
     .uploader-container {
         margin-top: 0px; /* Reduce el espacio entre los radio buttons y el uploader */
+    }
+    .stRadio [role=radiogroup]{
+        align-items: center;
+        justify-content: center;
     }
     </style>
     """,
