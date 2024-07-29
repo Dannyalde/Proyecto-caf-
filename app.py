@@ -28,7 +28,7 @@ st.markdown(
     <style>
     .title {
         text-align: center;
-        font-size: 5vw; /* Ajusta el tamaño del título para dispositivos móviles */
+        font-size: 6vw; /* Ajusta el tamaño del título para dispositivos móviles */
         margin: 0; /* Reduce el espacio superior e inferior del título */
         padding-top: 0; /* Asegura que no haya espacio adicional en la parte superior */
     }
@@ -40,7 +40,7 @@ st.markdown(
         margin-bottom: 0px; /* Reduce el espacio entre la imagen y los radio buttons */
     }
     .image-container img {
-        width: 30vw; /* Ajusta el tamaño de la imagen para dispositivos móviles */
+        width: 50vw; /* Ajusta el tamaño de la imagen para dispositivos móviles */
         height: auto;
     }
     .radio-buttons-container {
@@ -65,7 +65,7 @@ if 'selected_option' not in st.session_state:
     st.session_state['selected_option'] = "Tomar foto"
 
 # Crear una columna central para dispositivos móviles
-col1, col2, col3 = st.columns([1.9, 2, 1])
+col1, col2, col3 = st.columns([1, 3, 1])
 
 # Colocar los radio buttons en la columna central
 with col2:
