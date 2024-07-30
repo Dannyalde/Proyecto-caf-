@@ -156,11 +156,11 @@ if uploaded_file is not None:
 
     with col1:
         st.image(Bueno.reshape(img_normal.shape), width=150, output_format='auto')
-        st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
+        #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
 
     with col2:
         st.image(Malo.reshape(img_normal.shape), width=150, output_format='auto')
-        st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
+        #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
 
 
 # Crear el DataFrame para almacenar los resultados de las pruebas
