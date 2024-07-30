@@ -78,16 +78,17 @@ st.markdown(
         align-items: center;
         justify-content: center;
     }
-    /* Estilo para las columnas de imágenes */
     .column-container {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
         justify-content: center;
     }
-    .column-container > div {
-        flex: 1 1 45%; /* Ajusta el tamaño de las columnas en pantallas pequeñas */
-        min-width: 300px; /* Evita que las columnas se vuelvan demasiado pequeñas */
+    .column-container .column {
+        flex: 1;
+        min-width: 45%;
+        box-sizing: border-box;
+        padding: 10px;
     }
     </style>
     """,
@@ -151,16 +152,20 @@ if uploaded_file is not None:
     col1, col2 = st.columns(2)
     Lab = sc.RGB2Lab(img_normal)
     Malo, CafeMalo, Bueno, CafeBueno = sc.MaskLabV2(Lab, img_normal, sample, ((22, 99), (15, 100)))
+    
+    st.markdown('<div class="column-container">', unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
+    st.markdown('<div class="column">', unsafe_allow_html=True)
+    st.image(Bueno.reshape(img_normal.shape), use_column_width=True, output_format='auto')
+    st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    with col1:
-        st.image(Bueno.reshape(img_normal.shape), use_column_width=True, output_format='auto')
-        st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
+    st.markdown('<div class="column">', unsafe_allow_html=True)
+    st.image(Malo.reshape(img_normal.shape), use_column_width=True, output_format='auto')
+    st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    with col2:
-        st.image(Malo.reshape(img_normal.shape), use_column_width=True, output_format='auto')
-        st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # Crear el DataFrame para almacenar los resultados de las pruebas
