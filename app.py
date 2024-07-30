@@ -155,11 +155,11 @@ if uploaded_file is not None:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.image(Bueno.reshape(img_normal.shape), width=150, output_format='auto')
+        st.image(Bueno.reshape(img_normal.shape), width=100)
         #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
 
     with col2:
-        st.image(Malo.reshape(img_normal.shape), width=150, output_format='auto')
+        st.image(Malo.reshape(img_normal.shape), width=100)
         #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
 
 
