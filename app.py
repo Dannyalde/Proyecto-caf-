@@ -151,7 +151,7 @@ if uploaded_file is not None:
     Lab = sc.RGB2Lab(img_normal)
     Malo, CafeMalo, Bueno, CafeBueno = sc.MaskLabV2(Lab, img_normal, sample, ((22, 99), (15, 100)))#
 
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1,2])
 
     with col1:
         st.image(Bueno.reshape(img_normal.shape), width=100)
