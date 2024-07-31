@@ -148,17 +148,16 @@ if uploaded_file is not None:
     img = img_03MP
     img_normal, ref_white, mean, sample = sc.Normal(img, white_limit=240)
 
-    col1, col2 = st.columns(2)
     Lab = sc.RGB2Lab(img_normal)
-    Malo, CafeMalo, Bueno, CafeBueno = sc.MaskLabV2(Lab, img_normal, sample, ((22, 99), (15, 100)))
+    Malo, CafeMalo, Bueno, CafeBueno = sc.MaskLabV2(Lab, img_normal, sample, ((22, 99), (15, 100)))#
 
     col1, col2 = st.columns(2)
 
     with col1:
         st.image(Bueno.reshape(img_normal.shape), width=100)
-        #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
+    #    #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
 
-    with col2:
+    with col1:
         st.image(Malo.reshape(img_normal.shape), width=100)
         #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
 
@@ -179,11 +178,13 @@ if uploaded_file is not None:
     })
 
    # Mostrar la tabla de resultados
-    st.markdown("<h2 style='text-align: center;'>Resultados de las pruebas</h2>", unsafe_allow_html=True)
-    st.table(pd.DataFrame(st.session_state.results_list).style.set_properties(**{'text-align': 'center'}))
+    with col2: 
+        st.markdown("<h2 style='text-align: center;'>Resultados de las pruebas</h2>", unsafe_allow_html=True)
+        st.table(pd.DataFrame(st.session_state.results_list).style.set_properties(**{'text-align': 'center'}))
 
-    # Agregar un botón para exportar la tabla como PDF
-    if st.button('Exportar a PDF'):
-        pdf_filename = sc.exportar_a_pdf(pd.DataFrame(st.session_state.results_list))
-        st.success(f"Tabla exportada como '{pdf_filename}'")
+    with col2:
+        # Agregar un botón para exportar la tabla como PDF
+        if st.button('Exportar a PDF'):
+            pdf_filename = sc.exportar_a_pdf(pd.DataFrame(st.session_state.results_list))
+            st.success(f"Tabla exportada como '{pdf_filename}'")
 
