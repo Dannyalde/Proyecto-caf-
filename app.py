@@ -80,19 +80,21 @@ st.markdown(
     }
     /* Estilo para las columnas de imágenes */
     .column-container {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
         gap: 10px;
-        justify-content: center;
+        justify-items: center;
+        align-items: center;
     }
-    .column-container > div {
-        flex: 1 1 45%; /* Ajusta el tamaño de las columnas en pantallas pequeñas */
-        min-width: 300px; /* Evita que las columnas se vuelvan demasiado pequeñas */
+    .column-container img {
+        width: 100%; /* Ajusta el tamaño de las imágenes al 100% del contenedor */
+        height: auto;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 # Mostrar el título y la imagen
 st.markdown(f'<h1 class="title">Clasificador de café cereza</h1>', unsafe_allow_html=True)
@@ -151,15 +153,20 @@ if uploaded_file is not None:
     Lab = sc.RGB2Lab(img_normal)
     Malo, CafeMalo, Bueno, CafeBueno = sc.MaskLabV2(Lab, img_normal, sample, ((22, 99), (15, 100)))#
 
-    col1, col2 = st.columns([1,2])
+    # Utilizar la clase column-container para el contenedor de las imágenes
+    st.markdown('<div class="column-container">', unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
 
     with col1:
-        st.image(Bueno.reshape(img_normal.shape), width=100)
+        st.image(Bueno.reshape(img_normal.shape), use_column_width=True)
     #    #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
 
-    with col1:
-        st.image(Malo.reshape(img_normal.shape), width=100)
+    with col2:
+        st.image(Malo.reshape(img_normal.shape), use_column_width=True)
         #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # Crear el DataFrame para almacenar los resultados de las pruebas
@@ -178,13 +185,12 @@ if uploaded_file is not None:
     })
 
    # Mostrar la tabla de resultados
-    with col2: 
-        st.markdown("<h2 style='text-align: center;'>Resultados de las pruebas</h2>", unsafe_allow_html=True)
-        st.table(pd.DataFrame(st.session_state.results_list).style.set_properties(**{'text-align': 'center'}))
+    st.markdown("<h2 style='text-align: center;'>Resultados de las pruebas</h2>", unsafe_allow_html=True)
+    st.table(pd.DataFrame(st.session_state.results_list).style.set_properties(**{'text-align': 'center'}))
 
-    with col2:
-        # Agregar un botón para exportar la tabla como PDF
-        if st.button('Exportar a PDF'):
-            pdf_filename = sc.exportar_a_pdf(pd.DataFrame(st.session_state.results_list))
-            st.success(f"Tabla exportada como '{pdf_filename}'")
+    
+    # Agregar un botón para exportar la tabla como PDF
+    if st.button('Exportar a PDF'):
+        pdf_filename = sc.exportar_a_pdf(pd.DataFrame(st.session_state.results_list))
+        st.success(f"Tabla exportada como '{pdf_filename}'")
 
