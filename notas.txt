@@ -11,3 +11,6 @@ psql   entrar a postgres desde la consola
 
 \l  listar las bases de datos 
 
+
+
+
