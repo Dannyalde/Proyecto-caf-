@@ -11,3 +11,4 @@ psql   entrar a postgres desde la consola
 
 \l  listar las bases de datos 
 
+git remote set-url origin https://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@github.com/Dannyalde/Proyecto-caf- 
