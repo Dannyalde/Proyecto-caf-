@@ -103,6 +103,8 @@ st.markdown(f'<div class="image-container"><img src="data:image/png;base64,{imag
 # Inicializar el estado de sesión si no está presente
 if 'selected_option' not in st.session_state:
     st.session_state['selected_option'] = "Tomar foto"
+if 'last_uploaded_file' not in st.session_state:
+    st.session_state['last_uploaded_file'] = None
 
 # Crear una única columna para centrar el contenido
 col1 = st.columns([1])[0]
@@ -139,7 +141,8 @@ if uploaded_file is not None and show_image:
     st.image(image, use_column_width=True)
 
 
-if uploaded_file is not None:
+if uploaded_file is not None and uploaded_file != st.session_state['last_uploaded_file']:
+    st.session_state['last_uploaded_file'] = uploaded_file
 
     image = Image.open(uploaded_file) 
     path = "imagen_user.jpg"
@@ -169,28 +172,33 @@ if uploaded_file is not None:
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# Crear el DataFrame para almacenar los resultados de las pruebas
-if 'results_list' not in st.session_state:
-    st.session_state.results_list = []
+    # Crear el DataFrame para almacenar los resultados de las pruebas
+    if 'results_list' not in st.session_state:
+        st.session_state.results_list = []
 
-if uploaded_file is not None:
-    num_prueba = len(st.session_state.results_list) + 1  # Obtener el número de prueba
-    fecha_hora_actual = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')  # Obtener la fecha y hora actual
+    if uploaded_file is not None:
+        num_prueba = len(st.session_state.results_list) + 1  # Obtener el número de prueba
+        fecha_hora_actual = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')  # Obtener la fecha y hora actual
 
-    st.session_state.results_list.append({
-        "#prueba": num_prueba,
-        "Fecha y Hora": fecha_hora_actual,
-        "% cafe bueno": str(CafeBueno)[:6],
-        "% cafe malo": str(CafeMalo)[:6]
-    })
+        st.session_state.results_list.append({
+            "#prueba": num_prueba,
+            "Fecha y Hora": fecha_hora_actual,
+            "% cafe bueno": str(CafeBueno)[:6],
+            "% cafe malo": str(CafeMalo)[:6]
+        })
 
-   # Mostrar la tabla de resultados
+    # Mostrar la tabla de resultados
+if 'results_list' in st.session_state:
     st.markdown("<h2 style='text-align: center;'>Resultados de las pruebas</h2>", unsafe_allow_html=True)
-    st.table(pd.DataFrame(st.session_state.results_list).style.set_properties(**{'text-align': 'center'}))
+    df_resultados = pd.DataFrame(st.session_state.results_list)
+    st.table(df_resultados.style.set_properties(**{'text-align': 'center'}))
 
-    
-    # Agregar un botón para exportar la tabla como PDF
-    if st.button('Exportar a PDF'):
-        pdf_filename = sc.exportar_a_pdf(pd.DataFrame(st.session_state.results_list))
-        st.success(f"Tabla exportada como '{pdf_filename}'")
+    # Agregar un botón para exportar y descargar la tabla como PDF
+    pdf_content = sc.exportar_a_pdf(df_resultados)  # Supón que esta función devuelve el contenido PDF en binario
+    st.download_button(
+        label="Descargar PDF",
+        data=pdf_content,
+        file_name='resultados_pruebas.pdf',
+        mime='application/pdf'
 
+    )

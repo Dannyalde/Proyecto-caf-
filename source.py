@@ -10,6 +10,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 import base64
 import os
+import io
 
 
 
@@ -152,29 +153,29 @@ def MaskLabV2(img_Lab:np.ndarray,img_rgb:np.ndarray,mask_fg:np.ndarray,mask:tupl
 
 
 def exportar_a_pdf(dataframe):
-    
-    pdf_filename = "tabla_resultados.pdf"
-    pdf_path = os.path.join(os.getcwd(), pdf_filename)
-    pdf = SimpleDocTemplate(pdf_path, pagesize=letter)
+    buffer = io.BytesIO()
+    pdf = SimpleDocTemplate(buffer, pagesize=letter)
 
-    
-    data = [list(dataframe.columns)] + dataframe.values.tolist() # Convertir el DataFrame a una lista de listas    
-    table = Table(data) # Crear una tabla a partir de los datos
+    # Convertir el DataFrame a una lista de listas
+    data = [list(dataframe.columns)] + dataframe.values.tolist()
+    table = Table(data)
 
     # Estilo de la tabla
-    style = TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                        ('GRID', (0, 0), (-1, -1), 1, colors.black)])
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ])
+    table.setStyle(style)
 
-   
-    table.setStyle(style)  # Aplicar estilo a la tabla
-    elements = [table]     # Crear la lista de elementos a añadir al PDF
-    pdf.build(elements)    # Generar el PDF
+    elements = [table]
+    pdf.build(elements)
 
-    return pdf_filename
+    buffer.seek(0)
+    return buffer.read()
 
 
