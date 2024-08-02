@@ -11,7 +11,7 @@ st.set_page_config(layout="wide")
 
 # Credenciales de usuario (en un entorno real, utiliza un método seguro para almacenar y verificar credenciales)
 USER_CREDENTIALS = {
-    "user1": "password1",
+    "user": "1234",
     "user2": "password2"
 }
 
