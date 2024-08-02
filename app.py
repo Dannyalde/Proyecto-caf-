@@ -5,9 +5,14 @@ import source as sc
 import cv2 as cv
 import base64
 import os
+import logging
 
 # Configurar la página
 st.set_page_config(layout="wide")
+
+# Configurar el registro de errores
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Credenciales de usuario (en un entorno real, utiliza un método seguro para almacenar y verificar credenciales)
 USER_CREDENTIALS = {
@@ -22,6 +27,7 @@ def load_image(image_path):
             return base64.b64encode(img_file.read()).decode()
     except Exception as e:
         st.error(f"Error al cargar la imagen: {e}")
+        logger.error(f"Error al cargar la imagen: {e}")
         return ""
     
 def login():
@@ -32,6 +38,8 @@ def login():
         if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
             st.session_state['authenticated'] = True
             st.experimental_rerun()
+        else:
+            st.error("Usuario o contraseña incorrectos")
 
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
@@ -39,9 +47,14 @@ if 'authenticated' not in st.session_state:
 if not st.session_state['authenticated']:
     login()
 else:
-    # Obtener la ruta del directorio actual
-    directorio_actual = os.path.dirname(os.path.abspath(__file__))
-    ruta_logo = os.path.join(directorio_actual, "logo2.png")
+
+    try:
+        directorio_actual = os.path.dirname(os.path.abspath(__file__))
+        ruta_logo = os.path.join(directorio_actual, "logo2.png")
+    except Exception as e:
+        st.error(f"Error al obtener la ruta del directorio actual: {e}")
+        logger.error(f"Error al obtener la ruta del directorio actual: {e}")
+
     image_base64 = load_image(ruta_logo) # Cargar y codificar la imagen del logo
 
     st.markdown( # CSS para la página
