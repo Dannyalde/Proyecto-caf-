@@ -37,7 +37,6 @@ def login():
     if st.button("Iniciar sesión"):
         if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
             st.session_state['authenticated'] = True
-            st.experimental_rerun() 
         else:
             st.error("Usuario o contraseña incorrectos")
 
@@ -232,3 +231,9 @@ else:
             mime='application/pdf'
 
         )
+
+# Agregar un botón de cierre de sesión
+    if st.session_state['authenticated']:
+        if st.button("Cerrar sesión"):
+            st.session_state['authenticated'] = False
+            st.experimental_rerun() 
