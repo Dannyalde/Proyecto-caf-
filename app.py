@@ -1,5 +1,5 @@
 import streamlit as st
-from PIL import Image
+from PIL import Image as image2
 import pandas as pd
 import source as sc
 import cv2 as cv
@@ -7,6 +7,13 @@ import base64
 import os
 import logging
 import time
+
+
+from Cafe_Color.read_features import Image
+from Cafe_Color.preprocessing import Preprocess
+from Cafe_Color.segmentation import ColorSegmentation
+
+
 
 # Configurar la página
 st.set_page_config(layout="wide")
@@ -181,36 +188,32 @@ else:
 
     # Mostrar la imagen seleccionada o tomada
     if uploaded_file is not None and show_image:
-        image = Image.open(uploaded_file)
+        image = image2.open(uploaded_file)
         st.image(image, use_column_width=True)
 
 
     if uploaded_file is not None and uploaded_file != st.session_state['last_uploaded_file']:
         st.session_state['last_uploaded_file'] = uploaded_file
 
-        image = Image.open(uploaded_file) 
+        image = image2.open(uploaded_file) 
         path = "imagen_user.jpg"
         image.save(path)
 
-        # Procesar la imagen
-        img_03MP = cv.resize(cv.imread(path)[..., ::-1], (1536, 2048))
-        img = img_03MP
-        img_normal, ref_white, mean, sample = sc.Normal(img, white_limit=240)
-
-        Lab = sc.RGB2Lab(img_normal)
-        Malo, CafeMalo, Bueno, CafeBueno = sc.MaskLabV2(Lab, img_normal, sample, ((22, 99), (15, 100)))#
+        img = Image(path)
+        img_normal = Preprocess(img)._normalize(_rembg_ = True, _white_reference_ = False)
+        Color = ColorSegmentation(img_normal)
+        results = Color.MaskLab_coffe(((22,99),(15,100)))
 
         # Utilizar la clase column-container para el contenedor de las imágenes
         st.markdown('<div class="column-container">', unsafe_allow_html=True)
-
         col1, col2 = st.columns(2)
 
         with col1:
-            st.image(Bueno.reshape(img_normal.shape), use_column_width=True)
+            st.image(results.good_sample, use_column_width=True)
         #    #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
 
         with col2:
-            st.image(Malo.reshape(img_normal.shape), use_column_width=True)
+            st.image(results.bad_sample, use_column_width=True)
             #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café malo</p>", unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
@@ -227,8 +230,8 @@ else:
             st.session_state.results_list.append({
                 "#prueba": num_prueba,
                 "Fecha y Hora": fecha_hora_actual,
-                "% cafe bueno": str(CafeBueno)[:6],
-                "% cafe malo": str(CafeMalo)[:6]
+                "% cafe bueno": str(results.percent[0])[:6],
+                "% cafe malo": str(results.percent[1])[:6]
             })
 
         # Mostrar la tabla de resultados
