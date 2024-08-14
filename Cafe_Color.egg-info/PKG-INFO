@@ -1,0 +1,20 @@
+Metadata-Version: 2.1
+Name: Cafe-Color
+Version: 1.0.0
+Summary: Librería de análisis de imágenes para clasificación de café cereza en Python
+Home-page: https://github.com/Andress11/Color_Cafe.git
+Author: Jorge A. Ramírez, Jose D. Ardila, Andrés F. Cerón
+Author-email: jorge.ramirez@profesores.uamerica.edu.co
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# Color_Cafe
+Desarrollo de software para la clasificación de cerezas de café postcosecha.
+
+
