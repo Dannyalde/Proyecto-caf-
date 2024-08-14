@@ -6,6 +6,7 @@ import cv2 as cv
 import base64
 import os
 import logging
+import time
 
 # Configurar la página
 st.set_page_config(layout="wide")
@@ -16,9 +17,11 @@ logger = logging.getLogger(__name__)
 
 # Credenciales de usuario (en un entorno real, utiliza un método seguro para almacenar y verificar credenciales)
 USER_CREDENTIALS = {
-    "user": "1234",
-    "user2": "password2"
-}
+
+                    "user": "1234",
+                    "user2": "password2"
+                   }
+
 
 def load_image(image_path):
     """Carga una imagen y la convierte a base64."""
@@ -34,11 +37,23 @@ def login():
     st.title("Inicio de Sesión")
     username = st.text_input("Usuario")
     password = st.text_input("Contraseña", type="password")
-    if st.button("Iniciar sesión"):
+
+    # Autenticar automáticamente cuando se ingresan las credenciales correctas
+    if username and password:  # Solo verificar si ambos campos tienen algún valor
         if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
             st.session_state['authenticated'] = True
-        else:
+            st.success("Inicio de sesión exitoso!")
+            # Usamos st.empty() para crear un contenedor vacío que luego podemos limpiar
+            placeholder = st.empty()
+            placeholder.info("Redirigiendo...")
+            # Esperamos un segundo antes de limpiar el mensaje y recargar la página
+            time.sleep(1)
+            placeholder.empty()
+            st.experimental_rerun()
+        elif username in USER_CREDENTIALS or password:  # Si se ha intentado iniciar sesión
             st.error("Usuario o contraseña incorrectos")
+
+
 
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
