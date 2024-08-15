@@ -87,7 +87,7 @@ def login():
             # Esperamos un segundo antes de limpiar el mensaje y recargar la página
             time.sleep(1)
             placeholder.empty()
-            st.experimental_rerun()
+            st.rerun() 
         elif username in USER_CREDENTIALS or password:  # Si se ha intentado iniciar sesión
             st.error("Usuario o contraseña incorrectos")
 
