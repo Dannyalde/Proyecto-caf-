@@ -101,5 +101,5 @@ zipp==3.17.0
 pandas
 streamlit
 pandas-datareader
--e ./mi_libreria Cafe_Color 
+-e ./Cafe_Color 
 
