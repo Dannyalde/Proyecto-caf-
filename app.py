@@ -1,7 +1,6 @@
 import streamlit as st
 from PIL import Image as image2
 import pandas as pd
-import source as sc
 import cv2 as cv
 import base64
 import os
@@ -12,7 +11,10 @@ import time
 from Cafe_Color.read_features import Image
 from Cafe_Color.preprocessing import Preprocess
 from Cafe_Color.segmentation import ColorSegmentation
-
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+import io
 
 
 # Configurar la página
@@ -28,6 +30,35 @@ USER_CREDENTIALS = {
                     "user": "1234",
                     "user2": "password2"
                    }
+
+def exportar_a_pdf(dataframe):
+    buffer = io.BytesIO()
+    pdf = SimpleDocTemplate(buffer, pagesize=letter)
+
+    # Convertir el DataFrame a una lista de listas
+    data = [list(dataframe.columns)] + dataframe.values.tolist()
+    table = Table(data)
+
+    # Estilo de la tabla
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ])
+    table.setStyle(style)
+
+    elements = [table]
+    pdf.build(elements)
+
+    buffer.seek(0)
+    return buffer.read()
+
+
+
 
 
 def load_image(image_path):
@@ -241,7 +272,7 @@ else:
         st.table(df_resultados.style.set_properties(**{'text-align': 'center'}))
 
         # Agregar un botón para exportar y descargar la tabla como PDF
-        pdf_content = sc.exportar_a_pdf(df_resultados)  # Supón que esta función devuelve el contenido PDF en binario
+        pdf_content = exportar_a_pdf(df_resultados)  # Supón que esta función devuelve el contenido PDF en binario
         st.download_button(
             label="Descargar PDF",
             data=pdf_content,
