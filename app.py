@@ -285,4 +285,4 @@ else:
     if st.session_state['authenticated']:
         if st.button("Cerrar sesión"):
             st.session_state['authenticated'] = False
-            st.experimental_rerun() 
+            st.rerun() 
