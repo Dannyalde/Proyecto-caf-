@@ -101,6 +101,6 @@ zipp==3.17.0
 pandas
 streamlit
 pandas-datareader
-#Cafe-Color @ file:///home/danny/Documentos/Proyecto-caf-
+Cafe-Color @ file:///home/danny/Documentos/Proyecto-caf-
 
 
