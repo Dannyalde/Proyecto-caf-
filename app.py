@@ -240,9 +240,9 @@ else:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.image(img_normal.array, use_column_width=True)
+            st.image(Color.image, use_column_width=True)
             print("*"*20)
-            print(results.good_sample)
+            print(Color.image)
         #    #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
 
         with col2:
