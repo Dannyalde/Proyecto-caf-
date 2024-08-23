@@ -64,7 +64,7 @@ def exportar_a_pdf(dataframe):
 def load_image(image_path):
     """Carga una imagen y la convierte a base64."""
     try:
-        with open(image_path, "rb") as img_file:
+        with open(image_path, "rb") as img_file:            
             return base64.b64encode(img_file.read()).decode()
     except Exception as e:
         st.error(f"Error al cargar la imagen: {e}")
@@ -214,7 +214,7 @@ else:
         show_image = True
 
     else:
-        uploaded_file = st.camera_input("")
+        uploaded_file = st.camera_input("")        
         show_image = False
 
     # Mostrar la imagen seleccionada o tomada
@@ -240,7 +240,9 @@ else:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.image(results.good_sample, use_column_width=True)
+            st.image(img.array_3D, use_column_width=True)
+            print("*"*20)
+            print(results.good_sample)
         #    #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
 
         with col2:
