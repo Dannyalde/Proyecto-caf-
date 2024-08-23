@@ -214,7 +214,7 @@ else:
         show_image = True
 
     else:
-        uploaded_file = st.camera_input("")        
+        uploaded_file = st.camera_input("")
         show_image = False
 
     # Mostrar la imagen seleccionada o tomada
@@ -240,9 +240,8 @@ else:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.image(img_normal.array, use_column_width=True)
-            print("*"*20)
-            print(results.good_sample)
+            st.image(results.good_sample, use_column_width=True)
+
         #    #st.markdown("<p style='text-align: center; font-size: 18px; color: black; font-weight: bold; font-style: italic;'>Café bueno</p>", unsafe_allow_html=True)
 
         with col2:
