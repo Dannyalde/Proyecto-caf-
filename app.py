@@ -1,7 +1,6 @@
 import streamlit as st
 from PIL import Image as image2
 import pandas as pd
-import cv2 as cv
 import base64
 import os
 import logging
