@@ -102,4 +102,4 @@ zipp==3.17.0
 pandas
 streamlit
 pandas-datareader
--e ./Cafe_Color 
+-e ./Cafe_Color
