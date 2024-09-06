@@ -7,7 +7,7 @@ class Preprocess:
         
         self.array = image.array_3D
         self.properties = image.properties 
-        self.array_3D = self._resizeimg(n_column = int(self.properties['columns']/3))
+        self.array_3D = self._resizeimg(n_column = int(self.properties['columns']/2)) 
 
     def _unfolding(self,array_3D: np.ndarray):
 
