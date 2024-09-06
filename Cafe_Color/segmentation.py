@@ -48,13 +48,19 @@ class ColorSegmentation:
     
     def _Segment_Coffe(self, image, upper, lower):
 
-        array_RGB = image.array
-        mask_fg = image.background_mask
-        Lab = np.zeros_like(image.array)
+        rows, columns, bands = image.array.shape
+        array_RGB = unfolding(image.array)
+        mask_fg = image.background_mask.reshape(-1)
+        Lab = np.zeros_like(array_RGB)
         Lab[mask_fg != 0] = self._RGB2Lab(array_RGB[mask_fg != 0], fold = False)
-        mask = cv.inRange(Lab, upperb = upper, lowerb = lower)
-        image_coffe = cv.bitwise_and(array_RGB, array_RGB, mask = mask)
-        self.mask = cv.bitwise_and(mask_fg, mask_fg, mask = mask)
+        Lab_ = folding(Lab,rows,columns,bands)
+        mask = cv.inRange(Lab_, upperb = upper, lowerb = lower)
+        mask = mask.reshape(-1)
+        mask_and = np.logical_and(mask != 0, mask_fg  != 0)
+        self.mask = folding(mask_and,rows,columns,1)
+        image_coffe = np.zeros_like(array_RGB)
+        image_coffe[mask_and] = array_RGB[mask_and]
+        image_coffe = folding(image_coffe,rows,columns,bands)
         return image_coffe
 
     def MaskLab_coffe(self, mask:tuple):
