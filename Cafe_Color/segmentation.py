@@ -7,7 +7,7 @@ from .utilts import (unfolding, folding)
 class ColorSegmentation:
 
     def __init__(self,image):
-        self.image = self._Segment_Coffe(image,lower = (0, -80, -10), upper = (85, 80, 80))
+        self.image = self._Segment_Coffe(image,lower = (0, -80, 0), upper = (85, 80, 80))
 
     def _companding_sRGB(self,rgb_values: np.ndarray):
         
