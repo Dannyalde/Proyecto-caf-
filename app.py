@@ -5,7 +5,7 @@ import base64
 import os
 import logging
 import time
-
+import json
 
 from Cafe_Color.read_features import Image
 from Cafe_Color.preprocessing import Preprocess
@@ -22,6 +22,76 @@ st.set_page_config(layout="wide")
 # Configurar el registro de errores
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Ruta para almacenar los usuarios registrados en un JSON 
+USER_DATA_FILE = 'user_data.json'
+
+
+# Función para cargar los usuarios desde el archivo JSON
+def cargar_usuarios():
+    if os.path.exists(USER_DATA_FILE):
+        with open(USER_DATA_FILE, 'r') as file:
+            return json.load(file)
+    else:
+        return {}
+
+# Función para guardar los usuarios en el archivo JSON
+def guardar_usuarios(data):
+    with open(USER_DATA_FILE, 'w') as file:
+        json.dump(data, file)
+
+
+
+# Función de registro
+def registro():
+    st.title("Registro de Nuevo Usuario")
+    
+    # Solicitar los datos del nuevo usuario
+    nombre = st.text_input("Nombre completo")
+    password = st.text_input("Contraseña", type="password")
+    password_confirm = st.text_input("Confirmar contraseña", type="password")
+    correo = st.text_input("Correo")
+    celular = st.text_input("Celular")
+    nombre_finca = st.text_input("Nombre de la finca")
+    direccion_finca = st.text_input("Dirección de la finca")
+    lotes_finca = st.number_input("Cantidad de lotes en la finca", min_value=1, step=1)
+    username = st.text_input("Usuario (Cedula)")
+    
+    
+    if st.button("Registrarse"):
+        if not (nombre and correo and celular and nombre_finca and direccion_finca and username and password) and password_confirm:
+            st.error("Por favor complete todos los campos")
+        else:
+            if password != password_confirm:
+                st.error("Las contraseñas no coinciden.")
+            else: 
+                # Cargar usuarios existentes
+                usuarios = cargar_usuarios()
+                # Verificar si el usuario ya existe
+                if username in usuarios:
+                    st.error("El nombre de usuario ya existe. Por favor elija otro.")
+                else:
+                    # Agregar nuevo usuario
+                    usuarios[username] = {
+                        "nombre": nombre,
+                        "correo": correo,
+                        "celular": celular,
+                        "nombre_finca": nombre_finca,
+                        "direccion_finca": direccion_finca,
+                        "lotes_finca": lotes_finca,
+                        "password": password
+                    }
+                    
+                    # Guardar los datos
+                    guardar_usuarios(usuarios)
+                    st.success("¡Registro exitoso! Ya puede iniciar sesión.")
+                    
+                   # Establecer una variable para volver al inicio de sesión
+                    st.session_state['show_register'] = False
+                    st.session_state['just_registered'] = True
+                    time.sleep(2)
+                    st.experimental_rerun()  # Volver al inicio de sesión
+                    
 
 # Credenciales de usuario (en un entorno real, utiliza un método seguro para almacenar y verificar credenciales)
 USER_CREDENTIALS = {
@@ -72,33 +142,50 @@ def load_image(image_path):
     
 def login():
     st.title("Inicio de Sesión")
+
+    if 'just_registered' in st.session_state and st.session_state['just_registered']:
+        st.success("¡Registro exitoso! Inicie sesión con sus credenciales.")
+        st.session_state['just_registered'] = False  # Limpiar estado después de mostrar el mensaje
+
     username = st.text_input("Usuario")
     password = st.text_input("Contraseña", type="password")
 
+
+    # Botón para registrarse
+    if st.button("¿No tiene cuenta? Regístrese aquí"):
+        st.session_state['show_register'] = True
+        st.experimental_rerun()
+
     # Autenticar automáticamente cuando se ingresan las credenciales correctas
     if username and password:  # Solo verificar si ambos campos tienen algún valor
-        if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
+        usuarios = cargar_usuarios()
+        if username in usuarios and usuarios[username]['password'] == password:
             st.session_state['authenticated'] = True
+            st.session_state['user_data'] = usuarios[username]  # Guardar datos del usuario en sesión
             st.success("Inicio de sesión exitoso!")
-            # Usamos st.empty() para crear un contenedor vacío que luego podemos limpiar
-            placeholder = st.empty()
-            placeholder.info("Redirigiendo...")
-            # Esperamos un segundo antes de limpiar el mensaje y recargar la página
             time.sleep(1)
-            placeholder.empty()
-            st.rerun() 
+            st.experimental_rerun()          
+            
         elif username in USER_CREDENTIALS or password:  # Si se ha intentado iniciar sesión
             st.error("Usuario o contraseña incorrectos")
 
 
-
+# Controlar el flujo de la aplicación
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
+if 'show_register' not in st.session_state:
+    st.session_state['show_register'] = False
+
 if not st.session_state['authenticated']:
-    login()
+    if st.session_state['show_register']:
+        registro()  # Mostrar el registro si el usuario lo selecciona
+    else:
+        login()  # Mostrar la pantalla de inicio de sesión
+
 else:
 
+    st.success(f"Bienvenido {st.session_state['user_data']['nombre']}. Finca {st.session_state['user_data']['nombre_finca']}.")
     try:
         directorio_actual = os.path.dirname(os.path.abspath(__file__))
         ruta_logo = os.path.join(directorio_actual, "logo2.png")
@@ -181,11 +268,27 @@ else:
     st.markdown(f'<h1 class="title">Clasificador de café cereza</h1>', unsafe_allow_html=True)
     st.markdown(f'<div class="image-container"><img src="data:image/png;base64,{image_base64}" alt="Logo"></div>', unsafe_allow_html=True)
 
+    # Obtener la cantidad de lotes del usuario
+    num_lotes = st.session_state['user_data']['lotes_finca']
+    lotes = [f"Lote {i+1}" for i in range(num_lotes)]
+
+    # Inicializar el estado de sesión si no está presente
+    if 'selected_lote' not in st.session_state:
+        st.session_state['selected_lote'] = lotes[0] if lotes else "Lote 1"
+    if 'last_uploaded_file' not in st.session_state:
+        st.session_state['last_uploaded_file'] = None
+
+
     # Inicializar el estado de sesión si no está presente
     if 'selected_option' not in st.session_state:
         st.session_state['selected_option'] = "Tomar foto"
     if 'last_uploaded_file' not in st.session_state:
         st.session_state['last_uploaded_file'] = None
+
+    # Seleccionar el lote mediante un selectbox
+    st.sidebar.header("Seleccionar Lote")
+    selected_lote = st.sidebar.selectbox("", lotes)
+    st.session_state['selected_lote'] = selected_lote
 
     # Crear una única columna para centrar el contenido
     col1 = st.columns([1])[0]
@@ -261,6 +364,7 @@ else:
             st.session_state.results_list.append({
                 "#prueba": num_prueba,
                 "Fecha y Hora": fecha_hora_actual,
+                "Lote": selected_lote,
                 "% cafe bueno": str(results.percent[0])[:6],
                 "% cafe malo": str(results.percent[1])[:6]
             })

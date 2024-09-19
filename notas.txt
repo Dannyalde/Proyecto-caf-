@@ -1,6 +1,8 @@
 como ejecutar el proyecto 
 
-1. Activar el ambiente con el siguiente comando: source env_cafe/bin/activate 
+1. Activar el
+
+ ambiente con el siguiente comando: source env_cafe/bin/activate 
 2. ejecutar server: python3 -m streamlit run app.py
 3. crear archivo de requerimientos: python -m pip freeze > requirements.txt
 
@@ -10,7 +12,5 @@ sudo su - postgres
 psql   entrar a postgres desde la consola 
 
 \l  listar las bases de datos 
-
-
 
 
