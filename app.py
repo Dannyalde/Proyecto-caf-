@@ -90,7 +90,8 @@ def registro():
                     st.session_state['show_register'] = False
                     st.session_state['just_registered'] = True
                     time.sleep(2)
-                    st.experimental_rerun()  # Volver al inicio de sesión
+                    st.rerun()
+ # Volver al inicio de sesión
                     
 
 # Credenciales de usuario (en un entorno real, utiliza un método seguro para almacenar y verificar credenciales)
@@ -154,7 +155,7 @@ def login():
     # Botón para registrarse
     if st.button("¿No tiene cuenta? Regístrese aquí"):
         st.session_state['show_register'] = True
-        st.experimental_rerun()
+        st.rerun()
 
     # Autenticar automáticamente cuando se ingresan las credenciales correctas
     if username and password:  # Solo verificar si ambos campos tienen algún valor
@@ -164,7 +165,7 @@ def login():
             st.session_state['user_data'] = usuarios[username]  # Guardar datos del usuario en sesión
             st.success("Inicio de sesión exitoso!")
             time.sleep(1)
-            st.experimental_rerun()          
+            st.rerun()
             
         elif username in USER_CREDENTIALS or password:  # Si se ha intentado iniciar sesión
             st.error("Usuario o contraseña incorrectos")
