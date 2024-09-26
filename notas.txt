@@ -8,9 +8,21 @@ como ejecutar el proyecto
 
 base de datos 
 
-sudo su - postgres  
-psql   entrar a postgres desde la consola 
 
-\l  listar las bases de datos 
+mysql -u root -p
+Usuario  : root 
+Password : 1009
+SHOW DATABASES;
+USE nombre_base_datos;  selecccionar base de datos 
+SHOW TABLES;
+DESCRIBE nombre_tabla;
+
+
+
+
+
+
+
+
 
 

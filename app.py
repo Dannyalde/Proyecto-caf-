@@ -1,19 +1,17 @@
 import streamlit as st
 from PIL import Image as image2
 import pandas as pd
-import base64
 import os
 import logging
-import time
-import json
+
+from record import registro, login
+from data import load_image, exportar_a_pdf
+
 
 from Cafe_Color.read_features import Image
 from Cafe_Color.preprocessing import Preprocess
 from Cafe_Color.segmentation import ColorSegmentation
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-import io
+
 
 
 # Configurar la página
@@ -22,153 +20,6 @@ st.set_page_config(layout="wide")
 # Configurar el registro de errores
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Ruta para almacenar los usuarios registrados en un JSON 
-USER_DATA_FILE = 'user_data.json'
-
-
-# Función para cargar los usuarios desde el archivo JSON
-def cargar_usuarios():
-    if os.path.exists(USER_DATA_FILE):
-        with open(USER_DATA_FILE, 'r') as file:
-            return json.load(file)
-    else:
-        return {}
-
-# Función para guardar los usuarios en el archivo JSON
-def guardar_usuarios(data):
-    with open(USER_DATA_FILE, 'w') as file:
-        json.dump(data, file)
-
-
-
-# Función de registro
-def registro():
-    st.title("Registro de Nuevo Usuario")
-    
-    # Solicitar los datos del nuevo usuario
-    nombre = st.text_input("Nombre completo")
-    password = st.text_input("Contraseña", type="password")
-    password_confirm = st.text_input("Confirmar contraseña", type="password")
-    correo = st.text_input("Correo")
-    celular = st.text_input("Celular")
-    nombre_finca = st.text_input("Nombre de la finca")
-    direccion_finca = st.text_input("Dirección de la finca")
-    lotes_finca = st.number_input("Cantidad de lotes en la finca", min_value=1, step=1)
-    username = st.text_input("Usuario (Cedula)")
-    
-    
-    if st.button("Registrarse"):
-        if not (nombre and correo and celular and nombre_finca and direccion_finca and username and password) and password_confirm:
-            st.error("Por favor complete todos los campos")
-        else:
-            if password != password_confirm:
-                st.error("Las contraseñas no coinciden.")
-            else: 
-                # Cargar usuarios existentes
-                usuarios = cargar_usuarios()
-                # Verificar si el usuario ya existe
-                if username in usuarios:
-                    st.error("El nombre de usuario ya existe. Por favor elija otro.")
-                else:
-                    # Agregar nuevo usuario
-                    usuarios[username] = {
-                        "nombre": nombre,
-                        "correo": correo,
-                        "celular": celular,
-                        "nombre_finca": nombre_finca,
-                        "direccion_finca": direccion_finca,
-                        "lotes_finca": lotes_finca,
-                        "password": password
-                    }
-                    
-                    # Guardar los datos
-                    guardar_usuarios(usuarios)
-                    st.success("¡Registro exitoso! Ya puede iniciar sesión.")
-                    
-                   # Establecer una variable para volver al inicio de sesión
-                    st.session_state['show_register'] = False
-                    st.session_state['just_registered'] = True
-                    time.sleep(2)
-                    st.rerun()
- # Volver al inicio de sesión
-                    
-
-# Credenciales de usuario (en un entorno real, utiliza un método seguro para almacenar y verificar credenciales)
-USER_CREDENTIALS = {
-
-                    "user": "1234",
-                    "user2": "password2"
-                   }
-
-def exportar_a_pdf(dataframe):
-    buffer = io.BytesIO()
-    pdf = SimpleDocTemplate(buffer, pagesize=letter)
-
-    # Convertir el DataFrame a una lista de listas
-    data = [list(dataframe.columns)] + dataframe.values.tolist()
-    table = Table(data)
-
-    # Estilo de la tabla
-    style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-    table.setStyle(style)
-
-    elements = [table]
-    pdf.build(elements)
-
-    buffer.seek(0)
-    return buffer.read()
-
-
-
-
-
-def load_image(image_path):
-    """Carga una imagen y la convierte a base64."""
-    try:
-        with open(image_path, "rb") as img_file:            
-            return base64.b64encode(img_file.read()).decode()
-    except Exception as e:
-        st.error(f"Error al cargar la imagen: {e}")
-        logger.error(f"Error al cargar la imagen: {e}")
-        return ""
-    
-def login():
-    st.title("Inicio de Sesión")
-
-    if 'just_registered' in st.session_state and st.session_state['just_registered']:
-        st.success("¡Registro exitoso! Inicie sesión con sus credenciales.")
-        st.session_state['just_registered'] = False  # Limpiar estado después de mostrar el mensaje
-
-    username = st.text_input("Usuario")
-    password = st.text_input("Contraseña", type="password")
-
-
-    # Botón para registrarse
-    if st.button("¿No tiene cuenta? Regístrese aquí"):
-        st.session_state['show_register'] = True
-        st.rerun()
-
-    # Autenticar automáticamente cuando se ingresan las credenciales correctas
-    if username and password:  # Solo verificar si ambos campos tienen algún valor
-        usuarios = cargar_usuarios()
-        if username in usuarios and usuarios[username]['password'] == password:
-            st.session_state['authenticated'] = True
-            st.session_state['user_data'] = usuarios[username]  # Guardar datos del usuario en sesión
-            st.success("Inicio de sesión exitoso!")
-            time.sleep(1)
-            st.rerun()
-            
-        elif username in USER_CREDENTIALS or password:  # Si se ha intentado iniciar sesión
-            st.error("Usuario o contraseña incorrectos")
 
 
 # Controlar el flujo de la aplicación
