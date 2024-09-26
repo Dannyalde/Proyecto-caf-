@@ -13,7 +13,6 @@ from Cafe_Color.preprocessing import Preprocess
 from Cafe_Color.segmentation import ColorSegmentation
 
 
-
 # Configurar la página
 st.set_page_config(layout="wide")
 

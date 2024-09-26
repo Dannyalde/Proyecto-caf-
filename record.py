@@ -1,3 +1,5 @@
+from Inserts import insert_usuario
+
 import streamlit as st
 import json
 import time
@@ -50,6 +52,7 @@ def registro():
             else: 
                 # Cargar usuarios existentes
                 usuarios = cargar_usuarios()
+                insert_usuario(username, nombre, password, correo, celular)
                 # Verificar si el usuario ya existe
                 if username in usuarios:
                     st.error("El nombre de usuario ya existe. Por favor elija otro.")

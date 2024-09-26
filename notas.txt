@@ -17,6 +17,9 @@ USE nombre_base_datos;  selecccionar base de datos
 SHOW TABLES;
 DESCRIBE nombre_tabla;
 
+SELECT * FROM Usuarios ORDER BY ID DESC LIMIT 1;  ## ultimo registro insertado en la tabla usuario 
+SELECT * FROM Usuarios; ## todos los registros 
+
 
 
 
