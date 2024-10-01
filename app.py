@@ -1,12 +1,13 @@
-import streamlit as st
 from PIL import Image as image2
+from datetime import datetime
+import streamlit as st
 import pandas as pd
 import os
 import logging
 
 from record import registro, login
 from data import load_image, exportar_a_pdf
-
+from Inserts import inserts_fotos
 
 from Cafe_Color.read_features import Image
 from Cafe_Color.preprocessing import Preprocess
@@ -37,6 +38,7 @@ if not st.session_state['authenticated']:
 else:
 
     st.success(f"Bienvenido {st.session_state['user_data']['nombre']}. Finca {st.session_state['user_data']['nombre_finca']}.")
+
     try:
         directorio_actual = os.path.dirname(os.path.abspath(__file__))
         ruta_logo = os.path.join(directorio_actual, "logo2.png")
@@ -140,6 +142,9 @@ else:
     st.sidebar.header("Seleccionar Lote")
     selected_lote = st.sidebar.selectbox("", lotes)
     st.session_state['selected_lote'] = selected_lote
+    lote_user = selected_lote[-1]
+    print(lote_user)
+    print(st.session_state['user_data']['cedula'])
 
     # Crear una única columna para centrar el contenido
     col1 = st.columns([1])[0]
@@ -180,10 +185,14 @@ else:
         st.session_state['last_uploaded_file'] = uploaded_file
 
         image = image2.open(uploaded_file) 
-        path = "imagen_user.jpg"
-        image.save(path)
+        carpeta_destino = st.session_state['user_data']['cedula'] 
+        fecha_hora = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        nombre_archivo = f'lote_{lote_user}_{fecha_hora}.png'
+        ruta_imagen = os.path.join('Imagenes_usuarios', carpeta_destino, nombre_archivo)
+        print(ruta_imagen)
+        image.save(ruta_imagen)
 
-        img = Image(path)
+        img = Image(ruta_imagen)
         img_normal = Preprocess(img)._normalize(_rembg_ = True, _white_reference_ = False)
         Color = ColorSegmentation(img_normal)
         results = Color.MaskLab_coffe(((22,99),(15,100)))
@@ -211,6 +220,9 @@ else:
         if uploaded_file is not None:
             num_prueba = len(st.session_state.results_list) + 1  # Obtener el número de prueba
             fecha_hora_actual = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')  # Obtener la fecha y hora actual
+            Now = pd.Timestamp.now()
+            print(Now.date(), "date")
+            print(Now.time(), "time")
 
             st.session_state.results_list.append({
                 "#prueba": num_prueba,
@@ -219,6 +231,7 @@ else:
                 "% cafe bueno": str(results.percent[0])[:6],
                 "% cafe malo": str(results.percent[1])[:6]
             })
+            inserts_fotos([st.session_state['user_data']['cedula']], lote_user, str(results.percent[0])[:6], str(results.percent[1])[:6], Now.date(), Now.time(), nombre_archivo,  ruta_imagen)
 
         # Mostrar la tabla de resultados
     if 'results_list' in st.session_state:

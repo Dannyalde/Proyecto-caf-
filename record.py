@@ -1,4 +1,5 @@
-from Inserts import insert_usuario
+from Inserts import insert_usuario_y_finca, insert_lotes
+from queries import get_IDusuario_IDfinca_Nlotes
 
 import streamlit as st
 import json
@@ -52,7 +53,14 @@ def registro():
             else: 
                 # Cargar usuarios existentes
                 usuarios = cargar_usuarios()
-                insert_usuario(username, nombre, password, correo, celular)
+                insert_usuario_y_finca(username, nombre, password, correo, celular, nombre_finca, direccion_finca, lotes_finca)
+                id_usuario, id_finca, N_lotes = get_IDusuario_IDfinca_Nlotes([nombre])
+                insert_lotes(id_usuario, id_finca, N_lotes)
+                path = os.path.join('Imagenes_usuarios', username)
+                if not os.path.exists(path):
+                    os.makedirs(path)
+
+
                 # Verificar si el usuario ya existe
                 if username in usuarios:
                     st.error("El nombre de usuario ya existe. Por favor elija otro.")
@@ -65,7 +73,8 @@ def registro():
                         "nombre_finca": nombre_finca,
                         "direccion_finca": direccion_finca,
                         "lotes_finca": lotes_finca,
-                        "password": password
+                        "password": password, 
+                        "cedula": username
                     }
                     
                     # Guardar los datos
@@ -89,7 +98,6 @@ def login():
 
     username = st.text_input("Usuario")
     password = st.text_input("Contraseña", type="password")
-
 
     # Botón para registrarse
     if st.button("¿No tiene cuenta? Regístrese aquí"):

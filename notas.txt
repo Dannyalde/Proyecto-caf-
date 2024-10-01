@@ -21,6 +21,15 @@ SELECT * FROM Usuarios ORDER BY ID DESC LIMIT 1;  ## ultimo registro insertado e
 SELECT * FROM Usuarios; ## todos los registros 
 
 
+SET FOREIGN_KEY_CHECKS = 0;  -- Desactiva las comprobaciones de claves foráneas
+
+TRUNCATE TABLE Fotos;
+TRUNCATE TABLE Lotes;
+TRUNCATE TABLE Fincas;
+TRUNCATE TABLE Usuarios;
+
+SET FOREIGN_KEY_CHECKS = 1;  -- Reactiva las comprobaciones de claves foráneas
+
 
 
 
