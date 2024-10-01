@@ -1,0 +1,4 @@
+SELECT F.nombre, F.direccion, F.numero_lotes
+FROM Usuarios U
+JOIN Fincas F ON U.ID_finca = F.ID
+WHERE U.cedula = '1022389119'; #3453678

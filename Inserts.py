@@ -1,18 +1,12 @@
-import mysql.connector
 from mysql.connector import Error
-
+from connection import conexion_DB
 
 
 
 def insert_usuario_y_finca(cedula, nombre, contraseña, correo, celular, nombre_finca, direccion_finca, numero_lotes):
     try:
         # Conexión a la base de datos
-        connection = mysql.connector.connect(
-            host='localhost',  # Cambia si es otro host
-            database='dev_color_cafe',  # Nombre de tu base de datos
-            user='root',  # Usuario de MySQL
-            password='1009'  # Contraseña del usuario
-        )
+        connection = conexion_DB()
 
         if connection.is_connected():
             cursor = connection.cursor()
@@ -52,14 +46,8 @@ def insert_lotes(id_usuario, id_finca, N_lotes):
 
     try: 
         
-        print("Inicia insert lotes")
         # Conexión a la base de datos
-        connection = mysql.connector.connect(
-            host='localhost',  # Cambia si es otro host
-            database='dev_color_cafe',  # Nombre de tu base de datos
-            user='root',  # Usuario de MySQL
-            password='1009'  # Contraseña del usuario
-        )
+        connection = conexion_DB()
 
         if connection.is_connected():
             cursor = connection.cursor()
@@ -77,7 +65,6 @@ def insert_lotes(id_usuario, id_finca, N_lotes):
             connection.commit()
             
 
-
     except Error as e:
         print("No se realizaron inserts lotes")
         if connection.is_connected():
@@ -94,12 +81,7 @@ def insert_lotes(id_usuario, id_finca, N_lotes):
 def inserts_fotos(cedula, lote, porcentaje_bueno,  porcentaje_malo, fecha, hora, nombre, ruta ):
 
     try:
-        connection = mysql.connector.connect(
-            host='localhost',
-            database='dev_color_cafe',
-            user='root',
-            password='1009'
-        )
+        connection = conexion_DB()
 
         if connection.is_connected():
             cursor = connection.cursor()

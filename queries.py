@@ -1,16 +1,10 @@
-
-import mysql.connector
 from mysql.connector import Error
+from connection import conexion_DB
 
 
 def get_IDusuario_IDfinca_Nlotes(nombre_usuario):
     try:
-        connection = mysql.connector.connect(
-            host='localhost',
-            database='dev_color_cafe',
-            user='root',
-            password='1009'
-        )
+        connection = conexion_DB()
 
         if connection.is_connected():
             cursor = connection.cursor()

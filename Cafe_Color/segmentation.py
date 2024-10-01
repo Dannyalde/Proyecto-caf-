@@ -7,7 +7,10 @@ from .utilts import (unfolding, folding)
 class ColorSegmentation:
 
     def __init__(self,image):
-        self.image = self._Segment_Coffe(image,lower = (0, -80, 0), upper = (85, 80, 80))
+        self.mask = image.background_mask
+        f1Img = self._Segment_Coffe(nImg = image.array, lower = (20,-127,0), upper = (75,127,127))
+        self.image = f1Img
+
 
     def _companding_sRGB(self,rgb_values: np.ndarray):
         
@@ -38,7 +41,7 @@ class ColorSegmentation:
     def Lab2Lch(self, img_Lab: np.ndarray):
 
         rows, columns, bands = img_Lab.shape
-        Lab = self._unfolding(img_Lab)
+        Lab = unfolding(img_Lab)
         L, a, b = Lab[:, 0], Lab[:, 1], Lab[:, 2]
         c = np.sqrt(a**2 + b**2)
         h = np.arctan2(b, a) * (180 / np.pi)
@@ -46,26 +49,20 @@ class ColorSegmentation:
         Lch = folding(np.column_stack((L, c, h)), rows, columns, bands)
         return Lch
     
-    def _Segment_Coffe(self, image, upper, lower):
+    def _Segment_Coffe(self, nImg, upper, lower):
 
-        rows, columns, bands = image.array.shape
-        array_RGB = unfolding(image.array)
-        mask_fg = image.background_mask.reshape(-1)
-        Lab = np.zeros_like(array_RGB)
-        Lab[mask_fg != 0] = self._RGB2Lab(array_RGB[mask_fg != 0], fold = False)
-        Lab_ = folding(Lab,rows,columns,bands)
-        mask = cv.inRange(Lab_, upperb = upper, lowerb = lower)
-        mask = mask.reshape(-1)
-        mask_and = np.logical_and(mask != 0, mask_fg  != 0)
-        self.mask = folding(mask_and,rows,columns,1)
-        image_coffe = np.zeros_like(array_RGB)
-        image_coffe[mask_and] = array_RGB[mask_and]
-        image_coffe = folding(image_coffe,rows,columns,bands)
-        return image_coffe
-
+        LabImg = np.zeros_like(nImg)
+        LabImg[self.mask != 0] = self._RGB2Lab(nImg[self.mask != 0],fold = False)
+        sImg = np.ones_like(nImg)
+        mask = cv.inRange(LabImg, lowerb = lower, upperb = upper)
+        self.mask = cv.bitwise_and(self.mask,mask)
+        sImg[self.mask != 0] = nImg[self.mask != 0]
+        return sImg        
+    
     def MaskLab_coffe(self, mask:tuple):
 
         mask_fg = self.mask.reshape(-1) != 0
+        
         array_3D_RGB = self.image
         array_2D_RGB = unfolding(array_3D_RGB)
 
@@ -113,4 +110,21 @@ class ColorSegmentation:
         results.percent = percent
 
         return  results
+    
+    def __Segment_Coffe(self, image, upper, lower): 
+        rows, columns, bands = image.array.shape
+        array_RGB = unfolding(image.array)
+        mask_fg = self.mask.reshape(-1)
+        Lab = np.zeros_like(array_RGB)
+        Lab[mask_fg != 0] = self._RGB2Lab(array_RGB[mask_fg != 0], fold = False)
+        Lab_ = folding(Lab,rows,columns,bands)
+        mask = cv.inRange(Lab_, upperb = upper, lowerb = lower)
+        mask = mask.reshape(-1)
+        mask_and = np.logical_and(mask != 0, mask_fg  != 0)
+        self.mask = folding(mask_and,rows,columns,1)
+        image_coffe = np.zeros_like(array_RGB)
+        image_coffe[mask_and] = array_RGB[mask_and]
+        image_coffe = folding(image_coffe,rows,columns,bands)
+        return image_coffe
+
     
