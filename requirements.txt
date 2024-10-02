@@ -102,4 +102,6 @@ zipp==3.17.0
 pandas
 streamlit
 pandas-datareader
+mysql-connector-python
+
 -e ./Cafe_Color
