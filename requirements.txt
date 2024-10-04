@@ -47,8 +47,8 @@ networkx==3.2.1
 numba==0.59.0
 numpy==1.26.4
 onnxruntime==1.17.0
-opencv-python==4.10.0.84
-opencv-python-headless==4.9.0.80
+#opencv-python==4.10.0.84
+#opencv-python-headless==4.9.0.80
 packaging==23.2
 parso==0.8.3
 pickle-mixin==1.0.2
@@ -104,5 +104,7 @@ streamlit
 pandas-datareader
 mysql-connector-python
 cloudinary
+opencv-python
+opencv-python-headless
 
 -e ./Cafe_Color
