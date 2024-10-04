@@ -7,13 +7,24 @@ from cloudinary.utils import cloudinary_url
 
 
 def conexion_DB():
-    
+
     connection = mysql.connector.connect(
-        host='localhost',
-        database='dev_color_cafe',
-        user='root',
-        password='1009'
+
+        host = 'b8rftwrncqepdsmfaaty-mysql.services.clever-cloud.com', 
+        database = 'b8rftwrncqepdsmfaaty', 
+        user = 'uwm2fjgeqmjvqdoq', 
+        password = "bvjU9G7YQ4egWidsukUU"
     )
+
+
+
+    
+#    connection = mysql.connector.connect
+#        host='localhost',
+#        database='dev_color_cafe',
+#        user='root',
+#        password='1009'
+#    
 
     return connection
 

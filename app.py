@@ -200,6 +200,7 @@ else:
         nombre_archivo = f'lote_{lote_user}_{fecha_hora}.png'
         ruta_imagen = os.path.join('Imagenes_usuarios', carpeta_destino, nombre_archivo)
         image.save(ruta_imagen)
+        print(ruta_imagen)
 
         try:
             upload_result = cloudinary.uploader.upload(ruta_imagen, folder = carpeta_destino + "_" + "lote" + "_" + lote_user)
