@@ -28,7 +28,7 @@ def insert_usuario_y_finca(cedula, nombre, contraseña, correo, celular, nombre_
             cursor.execute(query_usuario, (cedula, nombre, contraseña, correo, celular, finca_id))
            
             connection.commit()
-            print(f"Registro insertado correctamente: {cursor.rowcount}")
+            print(f"Usuario {nombre} registrado correctamente : {cursor.rowcount}")
             cursor.close()
 
     except Error as e:
@@ -94,8 +94,6 @@ def inserts_fotos(cedula, lote, porcentaje_bueno,  porcentaje_malo, fecha, hora,
            
             cursor.execute(query_ID_usuario, (cedula))
             ID_Usuario = cursor.fetchone() 
-            print("Este es el id del usuario :" , ID_Usuario[0], type(ID_Usuario[0]))
-
 
             query_ID_lote = """
             SELECT ID 
@@ -105,8 +103,6 @@ def inserts_fotos(cedula, lote, porcentaje_bueno,  porcentaje_malo, fecha, hora,
 
             cursor.execute(query_ID_lote, (ID_Usuario[0], lote))
             ID_lote = cursor.fetchone() 
-            print("Este es el id del lote :" , ID_lote[0], type(ID_lote[0]))
-
             
             query_fotos = """
             INSERT INTO Fotos (ID_lote, porcentaje_bueno, porcentaje_malo, fecha, hora, nombre, ruta)
@@ -116,7 +112,7 @@ def inserts_fotos(cedula, lote, porcentaje_bueno,  porcentaje_malo, fecha, hora,
             cursor.execute(query_fotos, (ID_lote[0], porcentaje_bueno, porcentaje_malo, fecha, hora, nombre, ruta))
 
             connection.commit()
-            print(f"Registro insertado correctamente: {cursor.rowcount}")
+            print(f"Registro de foto insertado correctamente. ID_Usuario :  {ID_Usuario[0]},  ID_Lote : {ID_lote[0]}")
             cursor.close()
 
 

@@ -4,15 +4,26 @@ import streamlit as st
 import pandas as pd
 import os
 import logging
+from io import BytesIO
+from PIL import Image as ImagePIL
+
 
 from record import registro, login
 from data import load_image, exportar_a_pdf
 from Inserts import inserts_fotos
+from connection import conexion_cloudinary
 
 from Cafe_Color.read_features import Image
 from Cafe_Color.preprocessing import Preprocess
 from Cafe_Color.segmentation import ColorSegmentation
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+
+
+conexion_cloudinary()
 
 # Configurar la página
 st.set_page_config(layout="wide")
@@ -143,8 +154,7 @@ else:
     selected_lote = st.sidebar.selectbox("", lotes)
     st.session_state['selected_lote'] = selected_lote
     lote_user = selected_lote[-1]
-    print(lote_user)
-    print(st.session_state['user_data']['cedula'])
+    print(f"EL usuario con la cedula {st.session_state['user_data']['cedula']} ha seleccionado el lote numero {lote_user}")
 
     # Crear una única columna para centrar el contenido
     col1 = st.columns([1])[0]
@@ -189,8 +199,14 @@ else:
         fecha_hora = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         nombre_archivo = f'lote_{lote_user}_{fecha_hora}.png'
         ruta_imagen = os.path.join('Imagenes_usuarios', carpeta_destino, nombre_archivo)
-        print(ruta_imagen)
         image.save(ruta_imagen)
+
+        try:
+            upload_result = cloudinary.uploader.upload(ruta_imagen, folder = carpeta_destino + "_" + "lote" + "_" + lote_user)
+            print("Imagen cargada correctamente a coludinary :", upload_result["secure_url"])
+            
+        except Exception as e:
+            st.error(f"Error al subir la imagen a Cloudinary: {e}")
 
         img = Image(ruta_imagen)
         img_normal = Preprocess(img)._normalize(_rembg_ = True, _white_reference_ = False)
@@ -221,8 +237,6 @@ else:
             num_prueba = len(st.session_state.results_list) + 1  # Obtener el número de prueba
             fecha_hora_actual = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')  # Obtener la fecha y hora actual
             Now = pd.Timestamp.now()
-            print(Now.date(), "date")
-            print(Now.time(), "time")
 
             st.session_state.results_list.append({
                 "#prueba": num_prueba,
