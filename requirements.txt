@@ -103,5 +103,6 @@ pandas
 streamlit
 pandas-datareader
 mysql-connector-python
+cloudinary
 
 -e ./Cafe_Color
