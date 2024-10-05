@@ -56,10 +56,9 @@ def registro():
                 insert_usuario_y_finca(username, nombre, password, correo, celular, nombre_finca, direccion_finca, lotes_finca)
                 id_usuario, id_finca, N_lotes = get_IDusuario_IDfinca_Nlotes([nombre])
                 insert_lotes(id_usuario, id_finca, N_lotes)
-                path = os.path.join('Imagenes_usuarios', username)
-                if not os.path.exists(path):
-                    os.makedirs(path)
-
+                #path = os.path.join('Imagenes_usuarios', username)
+                #if not os.path.exists(path):
+                #    os.makedirs(path)
 
                 # Verificar si el usuario ya existe
                 if username in usuarios:

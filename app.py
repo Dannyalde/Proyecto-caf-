@@ -198,18 +198,23 @@ else:
         carpeta_destino = st.session_state['user_data']['cedula'] 
         fecha_hora = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         nombre_archivo = f'lote_{lote_user}_{fecha_hora}.png'
-        ruta_imagen = os.path.join('Imagenes_usuarios', carpeta_destino, nombre_archivo)
-        image.save(ruta_imagen)
-        print(ruta_imagen)
+        folder_name = f"{carpeta_destino}"
+        public_id = f"{nombre_archivo.split('.')[0]}"
+        #ruta_imagen = os.path.join('Imagenes_usuarios', carpeta_destino, nombre_archivo)
+        image.save(nombre_archivo)
+        
 
         try:
-            upload_result = cloudinary.uploader.upload(ruta_imagen, folder = carpeta_destino + "_" + "lote" + "_" + lote_user)
+            upload_result = cloudinary.uploader.upload(
+                nombre_archivo, 
+                folder = carpeta_destino + "_" + "lote" + "_" + lote_user,
+                public_id = public_id )
             print("Imagen cargada correctamente a coludinary :", upload_result["secure_url"])
             
         except Exception as e:
             st.error(f"Error al subir la imagen a Cloudinary: {e}")
 
-        img = Image(ruta_imagen)
+        img = Image(nombre_archivo)
         img_normal = Preprocess(img)._normalize(_rembg_ = True, _white_reference_ = False)
         Color = ColorSegmentation(img_normal)
         results = Color.MaskLab_coffe(((22,99),(15,100)))
@@ -246,7 +251,12 @@ else:
                 "% cafe bueno": str(results.percent[0])[:6],
                 "% cafe malo": str(results.percent[1])[:6]
             })
-            inserts_fotos([st.session_state['user_data']['cedula']], lote_user, str(results.percent[0])[:6], str(results.percent[1])[:6], Now.date(), Now.time(), nombre_archivo,  ruta_imagen)
+            inserts_fotos([st.session_state['user_data']['cedula']], lote_user, str(results.percent[0])[:6], str(results.percent[1])[:6], Now.date(), Now.time(), nombre_archivo,  upload_result["secure_url"])
+
+            if os.path.exists(nombre_archivo):
+                os.remove(nombre_archivo)
+                print(f"se elimino la imagen {nombre_archivo}")
+
 
         # Mostrar la tabla de resultados
     if 'results_list' in st.session_state:
