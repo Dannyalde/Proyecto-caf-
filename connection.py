@@ -18,7 +18,7 @@ def conexion_DB():
 
 
 
-    
+#    base de datos local    
 #    connection = mysql.connector.connect
 #        host='localhost',
 #        database='dev_color_cafe',
