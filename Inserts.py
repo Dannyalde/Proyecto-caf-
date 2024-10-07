@@ -1,6 +1,14 @@
 from mysql.connector import Error
 from connection import conexion_DB
+import bcrypt
 
+
+
+def hashear_contraseña(password):
+    # Genera el salt y hashea la contraseña
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password.decode('utf-8')
 
 
 def insert_usuario_y_finca(cedula, nombre, contraseña, correo, celular, nombre_finca, direccion_finca, numero_lotes):
@@ -11,6 +19,8 @@ def insert_usuario_y_finca(cedula, nombre, contraseña, correo, celular, nombre_
         if connection.is_connected():
             cursor = connection.cursor()
             connection.start_transaction()
+
+            password_hash = hashear_contraseña(contraseña)
 
             query_finca = """
             INSERT INTO Fincas (nombre, direccion, numero_lotes)
@@ -25,7 +35,7 @@ def insert_usuario_y_finca(cedula, nombre, contraseña, correo, celular, nombre_
             VALUES (%s, %s, %s, %s, %s, %s)
             """
             # Ejecutar el insert usuarios 
-            cursor.execute(query_usuario, (cedula, nombre, contraseña, correo, celular, finca_id))
+            cursor.execute(query_usuario, (cedula, nombre, password_hash, correo, celular, finca_id))
            
             connection.commit()
             print(f"Usuario {nombre} registrado correctamente : {cursor.rowcount}")

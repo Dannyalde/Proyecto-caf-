@@ -45,10 +45,14 @@ if not st.session_state['authenticated']:
         registro()  # Mostrar el registro si el usuario lo selecciona
     else:
         login()  # Mostrar la pantalla de inicio de sesión
-
+       
 else:
 
-    st.success(f"Bienvenido {st.session_state['user_data']['nombre']}. Finca {st.session_state['user_data']['nombre_finca']}.")
+    
+    if 'authenticated' in st.session_state and st.session_state['authenticated']:
+        data_user = st.session_state['user_data']
+        data_finca = st.session_state['finca_data']
+        st.success(f"Bienvenido {data_user['nombre']}. Finca {data_finca['nombre']} con {data_finca['numero_lotes']} lotes")
 
     try:
         directorio_actual = os.path.dirname(os.path.abspath(__file__))
@@ -133,7 +137,7 @@ else:
     st.markdown(f'<div class="image-container"><img src="data:image/png;base64,{image_base64}" alt="Logo"></div>', unsafe_allow_html=True)
 
     # Obtener la cantidad de lotes del usuario
-    num_lotes = st.session_state['user_data']['lotes_finca']
+    num_lotes = st.session_state['finca_data']['numero_lotes']
     lotes = [f"Lote {i+1}" for i in range(num_lotes)]
 
     # Inicializar el estado de sesión si no está presente
@@ -278,4 +282,5 @@ else:
     if st.session_state['authenticated']:
         if st.button("Cerrar sesión"):
             st.session_state['authenticated'] = False
+            print("sesion cerrada")
             st.rerun() #
