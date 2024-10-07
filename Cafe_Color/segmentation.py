@@ -8,7 +8,7 @@ class ColorSegmentation:
 
     def __init__(self,image):
         self.mask = image.background_mask
-        f1Img = self._Segment_Coffe(nImg = image.array, lower = (20,-127,0), upper = (75,127,127))
+        f1Img = self._Segment_Coffe(nImg = image.array, lower = (20,-127,0), upper = (85,127,127))
         self.image = f1Img
 
 
