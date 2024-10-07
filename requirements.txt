@@ -106,5 +106,7 @@ mysql-connector-python
 cloudinary
 opencv-python
 opencv-python-headless
+bcrypt
+
 
 -e ./Cafe_Color
