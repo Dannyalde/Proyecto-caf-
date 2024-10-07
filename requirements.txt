@@ -104,9 +104,9 @@ streamlit
 pandas-datareader
 mysql-connector-python
 cloudinary
+bcrypt
 opencv-python
 opencv-python-headless
-bcrypt
 
 
 -e ./Cafe_Color
