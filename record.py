@@ -46,24 +46,35 @@ def registro():
     if st.button("Registrarse"):
         if not (nombre and correo and celular and nombre_finca and direccion_finca and cedula and password) and password_confirm:
             st.error("Por favor complete todos los campos")
-        else:
-            if password != password_confirm:
-                st.error("Las contraseñas no coinciden.")
-            else: 
-                if verificar_usuario_existente(cedula, correo):
-                    st.error("El nombre de usuario o correo ya están registrados. Intente con otros.")
-                else: 
+        else: 
 
-                    insert_usuario_y_finca(cedula, nombre, password, correo, celular, nombre_finca, direccion_finca, lotes_finca)
-                    id_usuario, id_finca, N_lotes = get_IDusuario_IDfinca_Nlotes([nombre])
-                    insert_lotes(id_usuario, id_finca, N_lotes)       
-                    st.success("¡Registro exitoso! Ya puede iniciar sesión.")
-                    
-                    st.session_state['show_register'] = False
-                    st.session_state['just_registered'] = True
-                    time.sleep(2)
-                    st.rerun() # Volver al inicio de sesión
-                     
+            if not nombre.replace(" ", "").isalpha():
+                st.error("El nombre solo puede contener letras.") 
+                    # Verificar que la cédula solo contenga números
+            else: 
+                if not cedula.isdigit():
+                    st.error("La cédula solo puede contener números.")
+
+                    # Verificar si las contraseñas coinciden
+                else:            
+                    if password != password_confirm:
+                        st.error("Las contraseñas no coinciden.")
+                    # Verificar si el usuario o correo ya están registrados
+                    else: 
+                        if verificar_usuario_existente(cedula, correo):
+                            st.error("El nombre de usuario o correo ya están registrados. Intente con otros.")        
+
+                        else:                            
+                            insert_usuario_y_finca(cedula, nombre, password, correo, celular, nombre_finca, direccion_finca, lotes_finca)
+                            id_usuario, id_finca, N_lotes = get_IDusuario_IDfinca_Nlotes([nombre])
+                            insert_lotes(id_usuario, id_finca, N_lotes)       
+                            st.success("¡Registro exitoso! Ya puede iniciar sesión.")
+                            
+                            st.session_state['show_register'] = False
+                            st.session_state['just_registered'] = True
+                            time.sleep(2)
+                            st.rerun() # Volver al inicio de sesión
+                            
 
 def verificar_contraseña(password_ingresada, password_almacenada):
     # Almacena las contraseñas con un hash seguro
