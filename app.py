@@ -24,7 +24,7 @@ import cloudinary.api
 
 
 conexion_cloudinary()
-st.caching.clear_cache()
+st.cache_data.clear()
 
 # Configurar la página
 st.set_page_config(layout="wide")
