@@ -103,8 +103,8 @@ pandas
 streamlit
 pandas-datareader
 mysql-connector-python
-cloudinary
 bcrypt
+cloudinary
 opencv-python
 opencv-python-headless
 
