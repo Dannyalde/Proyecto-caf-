@@ -9,7 +9,7 @@ from PIL import Image as ImagePIL
 
 
 from record import registro, login
-from data import load_image, exportar_a_pdf
+from data import load_image, exportar_a_pdf, reducir_tamano_imagen
 from Inserts import inserts_fotos
 from connection import conexion_cloudinary
 
@@ -209,10 +209,11 @@ else:
         
 
         try:
+            imagen_reducida = reducir_tamano_imagen(nombre_archivo)
             upload_result = cloudinary.uploader.upload(
-                nombre_archivo, 
-                folder = carpeta_destino + "_" + "lote" + "_" + lote_user,
-                public_id = public_id )
+            imagen_reducida, 
+            folder = carpeta_destino + "_" + "lote" + "_" + lote_user,
+            public_id = public_id )
             print("Imagen cargada correctamente a coludinary :", upload_result["secure_url"])
             
         except Exception as e:

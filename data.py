@@ -1,6 +1,7 @@
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
+from PIL import Image
 import streamlit as st
 import logging
 import base64
@@ -51,3 +52,19 @@ def load_image(image_path):
         return ""
     
 
+def reducir_tamano_imagen(image_path, max_width=1024):
+    # Abrir la imagen
+    img = Image.open(image_path)
+    
+    # Redimensionar la imagen si su ancho es mayor al límite
+    if img.width > max_width:
+        ratio = max_width / float(img.width)
+        new_height = int((float(img.height) * float(ratio)))
+        img = img.resize((max_width, new_height), Image.Resampling.LANCZOS)  # Usar LANCZOS para redimensionado
+            
+    # Guardar la imagen en un buffer de memoria
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG", quality=85)  # Ajusta la calidad si es necesario
+    buffer.seek(0)  # Esto se asegura de que estemos al inicio del archivo en el buffer
+
+    return buffer
