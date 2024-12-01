@@ -105,8 +105,9 @@ pandas-datareader
 mysql-connector-python
 cloudinary
 bcrypt
-opencv-python
 opencv-python-headless
+opencv-python
+
 
 
 
